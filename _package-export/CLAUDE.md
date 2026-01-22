@@ -33,6 +33,16 @@ CSS-only animations, no external runtime dependencies beyond React.
 2. Check the example app still works: `pnpm dev`
 3. Verify no TypeScript errors in consumers
 
-## Before v1 Release
+## Publishing
 
-See PLAN.md for detailed roadmap.
+When instructed to publish a new npm version:
+
+1. Bump version in `package.json`
+2. Run `pnpm build`
+3. Commit the version bump
+4. Run `npm publish --access public` (will prompt for OTP)
+5. Push to main
+6. Update changelog in `example/src/app/changelog/page.tsx` (add new entry to `releases` array)
+7. Commit and push the changelog update
+
+Always analyze what changed since the last version to write accurate changelog entries.
