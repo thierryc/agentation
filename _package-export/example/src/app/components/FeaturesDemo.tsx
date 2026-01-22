@@ -1777,14 +1777,14 @@ function delay(ms: number): Promise<void> {
 // ============================================================
 export function MarkerKeyDemo() {
   return (
-    <ul>
+    <ul className="mkd-list">
       <li>
-        <span className="mkd-marker-inline blue">1</span>
-        {" "}Single element or text selection
+        <span className="mkd-marker-wrap"><span className="mkd-marker blue">1</span></span>
+        Single element or text selection
       </li>
       <li>
-        <span className="mkd-marker-inline green">1</span>
-        {" "}Multi-select or area (always green)
+        <span className="mkd-marker-wrap"><span className="mkd-marker green">1</span></span>
+        Multi-select or area (always green)
       </li>
     </ul>
   );
