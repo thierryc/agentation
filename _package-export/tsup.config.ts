@@ -89,7 +89,7 @@ export default defineConfig((options) => ({
   splitting: false,
   sourcemap: true,
   clean: !options.watch, // Only clean on build, not during watch
-  external: ["react", "react-dom", "framer-motion"],
+  external: ["react", "react-dom"],
   esbuildPlugins: [scssModulesPlugin()],
   define: {
     __VERSION__: JSON.stringify(VERSION),
