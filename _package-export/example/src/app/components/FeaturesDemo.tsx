@@ -1771,3 +1771,21 @@ export function SmartIdentificationDemo() {
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+// ============================================================
+// MARKER KEY DEMO (exported)
+// ============================================================
+export function MarkerKeyDemo() {
+  return (
+    <ul>
+      <li>
+        <span className="mkd-marker-inline blue">1</span>
+        {" "}Single element or text selection
+      </li>
+      <li>
+        <span className="mkd-marker-inline green">1</span>
+        {" "}Multi-select or area (always green)
+      </li>
+    </ul>
+  );
+}

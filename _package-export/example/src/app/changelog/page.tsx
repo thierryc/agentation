@@ -25,6 +25,14 @@ const badgeLabels: Record<ChangeType, string> = {
 
 const releases: Release[] = [
   {
+    version: "1.1.0",
+    date: "January 21, 2026",
+    changes: [
+      { type: "improved", text: "Package exports now have proper TypeScript type conditions" },
+      { type: "removed", text: "Deprecated AgentationCSS export alias (use Agentation instead)" },
+    ],
+  },
+  {
     version: "1.0.0",
     date: "January 21, 2026",
     summary: "First stable release. Click elements to annotate them, select text, drag to multi-select. Multiple output detail levels, keyboard shortcuts, customizable marker colors, and localStorage persistence.",

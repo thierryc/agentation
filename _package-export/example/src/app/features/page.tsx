@@ -1,7 +1,7 @@
 "use client";
 
 import { Footer } from "../Footer";
-import { FeaturesDemo, SettingsDemo, SmartIdentificationDemo } from "../components/FeaturesDemo";
+import { FeaturesDemo, SettingsDemo, SmartIdentificationDemo, MarkerKeyDemo } from "../components/FeaturesDemo";
 
 export default function FeaturesPage() {
   return (
@@ -32,6 +32,14 @@ export default function FeaturesPage() {
         <p style={{ fontSize: '0.875rem', color: 'rgba(0,0,0,0.5)', marginTop: '0.75rem' }}>
           Drag the toolbar to reposition it. Click a marker to remove it, or right-click to edit.
         </p>
+      </section>
+
+      <section>
+        <h2>Marker types</h2>
+        <p>
+          Different annotation modes use different marker styles.
+        </p>
+        <MarkerKeyDemo />
       </section>
 
       <section>

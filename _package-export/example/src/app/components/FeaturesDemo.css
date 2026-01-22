@@ -1329,6 +1329,39 @@
    MOBILE RESPONSIVE STYLES
    ============================================================ */
 
+/* ============================================================
+   MARKER KEY DEMO
+   ============================================================ */
+.mkd-marker-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-family: system-ui, sans-serif;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.mkd-marker-inline.blue {
+  width: 22px;
+  height: 22px;
+  font-size: 0.6875rem;
+  background: #3c82f7;
+  border-radius: 50%;
+  vertical-align: -2px;
+  margin-right: 0.5em;
+}
+
+.mkd-marker-inline.green {
+  width: 26px;
+  height: 26px;
+  font-size: 0.75rem;
+  background: #34c759;
+  border-radius: 6px;
+  vertical-align: -4px;
+  margin-right: 0.5em;
+}
+
 @media (max-width: 640px) {
   .fd-container {
     margin: 1rem 0;
