@@ -285,11 +285,11 @@ function App() {
         <section>
           <h2>Claude Code</h2>
           <p>
-            If you use Claude Code, you can set up Agentation automatically. Install the skill:
+            If you use Claude Code, you can set up Agentation automatically with the <code>/agentation</code> skill. Install it:
           </p>
           <CodeBlock code="npx add-skill benjitaylor/agentation" language="bash" copyable />
           <p style={{ marginTop: "1rem" }}>
-            Then run it:
+            Then in Claude Code:
           </p>
           <CodeBlock code="/agentation" language="bash" copyable />
           <p
