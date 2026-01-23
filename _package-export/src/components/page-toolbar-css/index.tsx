@@ -247,8 +247,16 @@ export type PageFeedbackToolbarCSSProps = {
   demoAnnotations?: DemoAnnotation[];
   demoDelay?: number;
   enableDemoMode?: boolean;
-  /** Callback fired when an annotation is added. Receives the full annotation object. */
-  onAnnotation?: (annotation: Annotation) => void;
+  /** Callback fired when an annotation is added. */
+  onAnnotationAdd?: (annotation: Annotation) => void;
+  /** Callback fired when an annotation is deleted. */
+  onAnnotationDelete?: (annotation: Annotation) => void;
+  /** Callback fired when an annotation comment is edited. */
+  onAnnotationUpdate?: (annotation: Annotation) => void;
+  /** Callback fired when all annotations are cleared. Receives the annotations that were cleared. */
+  onAnnotationsClear?: (annotations: Annotation[]) => void;
+  /** Callback fired when the copy button is clicked. Receives the markdown output. */
+  onCopy?: (markdown: string) => void;
   /** Whether to copy to clipboard when the copy button is clicked. Defaults to true. */
   copyToClipboard?: boolean;
 };
@@ -264,7 +272,11 @@ export function PageFeedbackToolbarCSS({
   demoAnnotations,
   demoDelay = 1000,
   enableDemoMode = false,
-  onAnnotation,
+  onAnnotationAdd,
+  onAnnotationDelete,
+  onAnnotationUpdate,
+  onAnnotationsClear,
+  onCopy,
   copyToClipboard = true,
 }: PageFeedbackToolbarCSSProps = {}) {
   const [isActive, setIsActive] = useState(false);
@@ -1241,8 +1253,8 @@ export function PageFeedbackToolbarCSS({
         setAnimatedMarkers((prev) => new Set(prev).add(newAnnotation.id));
       }, 250);
 
-      // Fire callback with the full annotation object
-      onAnnotation?.(newAnnotation);
+      // Fire callback
+      onAnnotationAdd?.(newAnnotation);
 
       // Animate out the pending annotation UI
       setPendingExiting(true);
@@ -1253,7 +1265,7 @@ export function PageFeedbackToolbarCSS({
 
       window.getSelection()?.removeAllRanges();
     },
-    [pendingAnnotation, onAnnotation],
+    [pendingAnnotation, onAnnotationAdd],
   );
 
   // Cancel annotation with exit animation
@@ -1269,8 +1281,14 @@ export function PageFeedbackToolbarCSS({
   const deleteAnnotation = useCallback(
     (id: string) => {
       const deletedIndex = annotations.findIndex((a) => a.id === id);
+      const deletedAnnotation = annotations[deletedIndex];
       setDeletingMarkerId(id);
       setExitingMarkers((prev) => new Set(prev).add(id));
+
+      // Fire callback
+      if (deletedAnnotation) {
+        onAnnotationDelete?.(deletedAnnotation);
+      }
 
       // Wait for exit animation then remove
       setTimeout(() => {
@@ -1289,7 +1307,7 @@ export function PageFeedbackToolbarCSS({
         }
       }, 150);
     },
-    [annotations],
+    [annotations, onAnnotationDelete],
   );
 
   // Start editing an annotation (right-click)
@@ -1303,11 +1321,16 @@ export function PageFeedbackToolbarCSS({
     (newComment: string) => {
       if (!editingAnnotation) return;
 
+      const updatedAnnotation = { ...editingAnnotation, comment: newComment };
+
       setAnnotations((prev) =>
         prev.map((a) =>
-          a.id === editingAnnotation.id ? { ...a, comment: newComment } : a,
+          a.id === editingAnnotation.id ? updatedAnnotation : a,
         ),
       );
+
+      // Fire callback
+      onAnnotationUpdate?.(updatedAnnotation);
 
       // Animate out the edit popup
       setEditExiting(true);
@@ -1316,7 +1339,7 @@ export function PageFeedbackToolbarCSS({
         setEditExiting(false);
       }, 150);
     },
-    [editingAnnotation],
+    [editingAnnotation, onAnnotationUpdate],
   );
 
   // Cancel editing with exit animation
@@ -1333,6 +1356,9 @@ export function PageFeedbackToolbarCSS({
     const count = annotations.length;
     if (count === 0) return;
 
+    // Fire callback with all annotations before clearing
+    onAnnotationsClear?.(annotations);
+
     setIsClearing(true);
     setCleared(true);
 
@@ -1345,7 +1371,7 @@ export function PageFeedbackToolbarCSS({
     }, totalAnimationTime);
 
     setTimeout(() => setCleared(false), 1500);
-  }, [pathname, annotations.length]);
+  }, [pathname, annotations, onAnnotationsClear]);
 
   // Copy output
   const copyOutput = useCallback(async () => {
@@ -1353,8 +1379,16 @@ export function PageFeedbackToolbarCSS({
     if (!output) return;
 
     if (copyToClipboard) {
-      await navigator.clipboard.writeText(output);
+      try {
+        await navigator.clipboard.writeText(output);
+      } catch {
+        // Clipboard may fail (permissions, not HTTPS, etc.) - continue anyway
+      }
     }
+
+    // Fire callback with markdown output (always, regardless of clipboard success)
+    onCopy?.(output);
+
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
 
@@ -1368,6 +1402,7 @@ export function PageFeedbackToolbarCSS({
     settings.autoClearAfterCopy,
     clearAll,
     copyToClipboard,
+    onCopy,
   ]);
 
   // Toolbar dragging - mousemove and mouseup

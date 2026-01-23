@@ -339,7 +339,7 @@ function App() {
             </thead>
             <tbody>
               <tr style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-                <td style={{ padding: "0.5rem 1rem 0.5rem 0" }}><code>onAnnotation</code></td>
+                <td style={{ padding: "0.5rem 1rem 0.5rem 0" }}><code>onAnnotationAdd</code></td>
                 <td style={{ padding: "0.5rem 1rem 0.5rem 0" }}><code>(annotation: Annotation) =&gt; void</code></td>
                 <td style={{ padding: "0.5rem 0" }}>Callback fired when an annotation is added</td>
               </tr>
@@ -355,8 +355,8 @@ function App() {
         <section>
           <h2>Programmatic integration</h2>
           <p>
-            Use the <code>onAnnotation</code> callback to receive structured
-            annotation data directly, without clipboard intermediation:
+            Use the <code>onAnnotationAdd</code> callback to receive structured
+            annotation data directly. See the <a href="/api">API page</a> for all available callbacks.
           </p>
           <CodeBlock
             code={`import { Agentation, type Annotation } from "agentation";
@@ -376,8 +376,8 @@ function App() {
     <>
       <YourApp />
       <Agentation
-        onAnnotation={handleAnnotation}
-        copyToClipboard={false}  // Skip clipboard if not needed
+        onAnnotationAdd={handleAnnotation}
+        copyToClipboard={false}  // Skip clipboard if handling via callback
       />
     </>
   );

@@ -21,11 +21,11 @@ afterEach(() => {
 });
 
 describe("PageFeedbackToolbarCSS", () => {
-  describe("onAnnotation callback", () => {
-    it("should accept onAnnotation prop without errors", () => {
+  describe("onAnnotationAdd callback", () => {
+    it("should accept onAnnotationAdd prop without errors", () => {
       const handleAnnotation = vi.fn();
       expect(() =>
-        render(<PageFeedbackToolbarCSS onAnnotation={handleAnnotation} />)
+        render(<PageFeedbackToolbarCSS onAnnotationAdd={handleAnnotation} />)
       ).not.toThrow();
     });
 
@@ -42,7 +42,7 @@ describe("PageFeedbackToolbarCSS", () => {
         expect(annotation).toHaveProperty("timestamp");
       };
 
-      render(<PageFeedbackToolbarCSS onAnnotation={handleAnnotation} />);
+      render(<PageFeedbackToolbarCSS onAnnotationAdd={handleAnnotation} />);
     });
   });
 
@@ -66,12 +66,12 @@ describe("PageFeedbackToolbarCSS", () => {
   });
 
   describe("combined props", () => {
-    it("should accept both onAnnotation and copyToClipboard props", () => {
+    it("should accept both onAnnotationAdd and copyToClipboard props", () => {
       const handleAnnotation = vi.fn();
       expect(() =>
         render(
           <PageFeedbackToolbarCSS
-            onAnnotation={handleAnnotation}
+            onAnnotationAdd={handleAnnotation}
             copyToClipboard={false}
           />
         )

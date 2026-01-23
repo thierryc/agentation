@@ -381,6 +381,7 @@ export function SideNav() {
     { href: "/install", label: "Install" },
     { href: "/features", label: "Features" },
     { href: "/output", label: "Output" },
+    { href: "/api", label: "API" },
     { href: "/changelog", label: "Changelog" },
     { href: "/faq", label: "FAQ" },
   ];

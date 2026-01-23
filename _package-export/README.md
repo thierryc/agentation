@@ -41,12 +41,16 @@ The toolbar appears in the bottom-right corner. Click to activate, then click an
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `onAnnotation` | `(annotation: Annotation) => void` | - | Callback fired when an annotation is added |
-| `copyToClipboard` | `boolean` | `true` | Whether to copy to clipboard when copy button is clicked |
+| `onAnnotationAdd` | `(annotation: Annotation) => void` | - | Called when an annotation is created |
+| `onAnnotationDelete` | `(annotation: Annotation) => void` | - | Called when an annotation is deleted |
+| `onAnnotationUpdate` | `(annotation: Annotation) => void` | - | Called when an annotation is edited |
+| `onAnnotationsClear` | `(annotations: Annotation[]) => void` | - | Called when all annotations are cleared |
+| `onCopy` | `(markdown: string) => void` | - | Callback with markdown output when copy is clicked |
+| `copyToClipboard` | `boolean` | `true` | Set to false to prevent writing to clipboard |
 
 ### Programmatic Integration
 
-Use the `onAnnotation` callback to receive structured annotation data directly, without clipboard intermediation:
+Use callbacks to receive annotation data directly:
 
 ```tsx
 import { Agentation, type Annotation } from 'agentation';
@@ -67,8 +71,8 @@ function App() {
     <>
       <YourApp />
       <Agentation
-        onAnnotation={handleAnnotation}
-        copyToClipboard={false}  // Skip clipboard if not needed
+        onAnnotationAdd={handleAnnotation}
+        copyToClipboard={false}  // Don't write to clipboard
       />
     </>
   );
@@ -81,7 +85,7 @@ function App() {
 type Annotation = {
   id: string;
   x: number;                    // % of viewport width
-  y: number;                    // px from top
+  y: number;                    // px from top (viewport if fixed)
   comment: string;              // User's note
   element: string;              // e.g., "Button"
   elementPath: string;          // e.g., "body > div > button"
