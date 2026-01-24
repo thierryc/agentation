@@ -587,6 +587,7 @@ export function PageFeedbackToolbarCSS({
         // Check for stored session ID to rejoin on refresh
         const storedSessionId = loadSessionId(pathname);
         const sessionIdToJoin = initialSessionId || storedSessionId;
+        let sessionEstablished = false;
 
         if (sessionIdToJoin) {
           // Join existing session - server annotations are authoritative
@@ -595,6 +596,7 @@ export function PageFeedbackToolbarCSS({
             setCurrentSessionId(session.id);
             setConnectionStatus("connected");
             saveSessionId(pathname, session.id);
+            sessionEstablished = true;
 
             // Only merge local annotations that haven't been synced to THIS session
             const unsyncedLocal = getUnsyncedAnnotations(pathname, session.id);
@@ -633,14 +635,16 @@ export function PageFeedbackToolbarCSS({
               saveAnnotationsWithSyncMarker(pathname, session.annotations, session.id);
             }
           } catch (joinError) {
-            // Session doesn't exist or expired - fall through to create new
+            // Session doesn't exist or expired - will create new below
             console.warn("[Agentation] Could not join session, creating new:", joinError);
             // Clear the stored session ID since it's invalid
             clearSessionId(pathname);
-            // Re-throw to trigger catch block which will retry without session ID
-            throw joinError;
+            // sessionEstablished remains false, will create new session
           }
-        } else {
+        }
+
+        // Create new session if we don't have one yet (either no stored ID, or rejoin failed)
+        if (!sessionEstablished) {
           // Create new session for current page
           const currentUrl = typeof window !== "undefined" ? window.location.href : "/";
           const session = await createSession(endpoint, currentUrl);
@@ -822,14 +826,20 @@ export function PageFeedbackToolbarCSS({
     };
   }, []);
 
-  // Save annotations
+  // Save annotations (preserving sync markers if connected to a session)
   useEffect(() => {
     if (mounted && annotations.length > 0) {
-      saveAnnotations(pathname, annotations);
+      if (currentSessionId) {
+        // Connected to session - save with sync marker to prevent re-upload on refresh
+        saveAnnotationsWithSyncMarker(pathname, annotations, currentSessionId);
+      } else {
+        // Not connected - save without markers (will sync when connected)
+        saveAnnotations(pathname, annotations);
+      }
     } else if (mounted && annotations.length === 0) {
       localStorage.removeItem(getStorageKey(pathname));
     }
-  }, [annotations, pathname, mounted]);
+  }, [annotations, pathname, mounted, currentSessionId]);
 
   // Freeze animations
   const freezeAnimations = useCallback(() => {

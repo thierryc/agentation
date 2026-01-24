@@ -141,6 +141,16 @@ const TOOLS = [
     },
   },
   {
+    name: "agentation_get_all_pending",
+    description:
+      "Get all pending annotations across ALL sessions. Use this to see all unaddressed feedback from the human across all pages they've visited.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {},
+      required: [],
+    },
+  },
+  {
     name: "agentation_acknowledge",
     description:
       "Mark an annotation as acknowledged. Use this to let the human know you've seen their feedback and will address it.",
@@ -301,6 +311,25 @@ async function handleTool(name: string, args: unknown): Promise<ToolResult> {
     case "agentation_get_pending": {
       const { sessionId } = GetPendingSchema.parse(args);
       const response = await httpGet<PendingResponse>(`/sessions/${sessionId}/pending`);
+      return success({
+        count: response.count,
+        annotations: response.annotations.map((a) => ({
+          id: a.id,
+          comment: a.comment,
+          element: a.element,
+          elementPath: a.elementPath,
+          url: a.url,
+          intent: a.intent,
+          severity: a.severity,
+          timestamp: a.timestamp,
+          nearbyText: a.nearbyText,
+          reactComponents: a.reactComponents,
+        })),
+      });
+    }
+
+    case "agentation_get_all_pending": {
+      const response = await httpGet<PendingResponse>("/pending");
       return success({
         count: response.count,
         annotations: response.annotations.map((a) => ({

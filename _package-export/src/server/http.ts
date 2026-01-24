@@ -205,6 +205,15 @@ const getPendingHandler: RouteHandler = async (_req, res, params) => {
 };
 
 /**
+ * GET /pending - Get all pending annotations across all sessions.
+ */
+const getAllPendingHandler: RouteHandler = async (_req, res) => {
+  const sessions = listSessions();
+  const allPending = sessions.flatMap((session) => getPendingAnnotations(session.id));
+  sendJson(res, 200, { count: allPending.length, annotations: allPending });
+};
+
+/**
  * POST /annotations/:id/thread - Add a thread message.
  */
 const addThreadHandler: RouteHandler = async (req, res, params) => {
@@ -368,6 +377,12 @@ const routes: Route[] = [
     method: "GET",
     pattern: /^\/events$/,
     handler: globalSseHandler,
+    paramNames: [],
+  },
+  {
+    method: "GET",
+    pattern: /^\/pending$/,
+    handler: getAllPendingHandler,
     paramNames: [],
   },
   {
