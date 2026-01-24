@@ -160,6 +160,11 @@ export default function SpecPage() {
           <p>
             An annotation represents a single piece of feedback attached to a UI element.
           </p>
+          <p style={{ fontSize: "0.8125rem", color: "rgba(0,0,0,0.55)", marginTop: "0.5rem", marginBottom: "1rem" }}>
+            <strong>Note:</strong> The browser component captures additional positioning fields (<code>x</code>, <code>y</code>, <code>isFixed</code>)
+            for UI rendering. The server adds metadata fields (<code>sessionId</code>, <code>createdAt</code>, <code>updatedAt</code>).
+            This spec documents the core portable schema.
+          </p>
 
           <h3>Required Fields</h3>
           <CodeBlock
@@ -176,7 +181,7 @@ export default function SpecPage() {
           <CodeBlock
             language="typescript"
             code={`{
-  element: string;      // Tag name ("button", "div", "input")
+  element: string;      // Tag name ("button", "div", "input") - always set by browser component
   url: string;          // Page URL where annotation was created
   boundingBox: {        // Element position at annotation time
     x: number;

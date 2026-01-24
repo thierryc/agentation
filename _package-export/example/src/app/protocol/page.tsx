@@ -245,7 +245,8 @@ export default function ProtocolPage() {
 
           <ToolName>agentation_resolve</ToolName>
           <p style={{ fontSize: "0.8125rem", color: "rgba(0,0,0,0.55)" }}>
-            Mark as done after fixing. Input: <code>annotationId</code>, optional <code>summary</code>
+            Mark as done after fixing. Input: <code>annotationId</code>, optional <code>summary</code>.
+            When a summary is provided, it&apos;s also posted to the annotation thread as an agent message.
           </p>
           <CodeBlock
             language="json"
@@ -343,14 +344,107 @@ await agentation_resolve({
           <p>
             The browser component syncs annotations via HTTP. The server exposes:
           </p>
-          <ul>
-            <li><code>POST /sessions</code> &mdash; Create a new session</li>
-            <li><code>GET /sessions/:id</code> &mdash; Get session with annotations</li>
-            <li><code>POST /sessions/:id/annotations</code> &mdash; Add an annotation</li>
-            <li><code>GET /sessions/:id/events</code> &mdash; SSE stream of events</li>
-            <li><code>GET /health</code> &mdash; Server health check</li>
-          </ul>
-          <p style={{ fontSize: "0.8125rem", color: "rgba(0,0,0,0.55)", marginTop: "0.5rem" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem", marginTop: "1rem" }}>
+            <tbody>
+              <tr>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", width: "45%", fontFamily: "monospace", fontSize: "0.8125rem" }}>
+                  GET /sessions
+                </td>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  List all sessions
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", fontFamily: "monospace", fontSize: "0.8125rem" }}>
+                  POST /sessions
+                </td>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Create a new session
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", fontFamily: "monospace", fontSize: "0.8125rem" }}>
+                  GET /sessions/:id
+                </td>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Get session with annotations
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", fontFamily: "monospace", fontSize: "0.8125rem" }}>
+                  GET /sessions/:id/pending
+                </td>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Get pending annotations only
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", fontFamily: "monospace", fontSize: "0.8125rem" }}>
+                  GET /sessions/:id/events
+                </td>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  SSE stream for session
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", fontFamily: "monospace", fontSize: "0.8125rem" }}>
+                  POST /sessions/:id/annotations
+                </td>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Add an annotation
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", fontFamily: "monospace", fontSize: "0.8125rem" }}>
+                  GET /annotations/:id
+                </td>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Get a single annotation
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", fontFamily: "monospace", fontSize: "0.8125rem" }}>
+                  PATCH /annotations/:id
+                </td>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Update an annotation
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", fontFamily: "monospace", fontSize: "0.8125rem" }}>
+                  DELETE /annotations/:id
+                </td>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Delete an annotation
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", fontFamily: "monospace", fontSize: "0.8125rem" }}>
+                  POST /annotations/:id/thread
+                </td>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Add a thread message
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", fontFamily: "monospace", fontSize: "0.8125rem" }}>
+                  GET /events?domain=...
+                </td>
+                <td style={{ padding: "0.375rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Site-level SSE stream
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.375rem 0", fontFamily: "monospace", fontSize: "0.8125rem" }}>
+                  GET /health
+                </td>
+                <td style={{ padding: "0.375rem 0", color: "rgba(0,0,0,0.5)" }}>
+                  Server health check
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p style={{ fontSize: "0.8125rem", color: "rgba(0,0,0,0.55)", marginTop: "0.75rem" }}>
             The React component handles this automatically when you set the <code>endpoint</code> prop.
           </p>
         </section>

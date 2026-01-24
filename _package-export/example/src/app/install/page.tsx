@@ -247,6 +247,18 @@ export default function InstallPage() {
         </header>
 
         <section>
+          <h2>Choose your setup</h2>
+          <ul>
+            <li><strong>Just want annotations?</strong> &rarr; Basic Setup below (copy-paste to agent)</li>
+            <li><strong>Using Claude Code?</strong> &rarr; Add the <code>/agentation</code> skill (auto-setup)</li>
+            <li><strong>Building a custom agent?</strong> &rarr; Run MCP server for real-time sync</li>
+          </ul>
+          <p style={{ fontSize: "0.875rem", color: "rgba(0,0,0,0.5)", marginTop: "0.5rem" }}>
+            Most users: Basic + Claude Code skill. Power users: Basic + MCP server.
+          </p>
+        </section>
+
+        <section>
           <h2>Install the package</h2>
           <CodeBlock code="npm install agentation" language="bash" copyable />
           <p
@@ -326,7 +338,6 @@ function App() {
             }}
           >
             Runs on port 4747 by default. Use <code>--port 8080</code> to change it.
-            Use <code>--mcp-only</code> to skip the HTTP server (for when running HTTP separately).
           </p>
 
           <h3>2. Configure your agent</h3>
@@ -334,7 +345,8 @@ function App() {
             Add Agentation as an MCP server in your agent&apos;s config. Example for Claude Code:
           </p>
           <CodeBlock
-            code={`// In ~/.claude.json under projects.<your-project-path>
+            code={`// Edit ~/.claude.json (Claude Code's global config)
+// Find or create: "projects" → "/absolute/path/to/your/project"
 {
   "mcpServers": {
     "agentation": {
@@ -353,8 +365,8 @@ function App() {
           <CodeBlock
             code={`<Agentation
   endpoint="http://localhost:4747"
-  onSessionCreated={(session) => {
-    console.log("Session started:", session.id);
+  onSessionCreated={(sessionId) => {
+    console.log("Session started:", sessionId);
   }}
 />`}
             language="tsx"
@@ -401,33 +413,86 @@ function App() {
         <section>
           <h2>Props</h2>
           <p>
-            The <code>Agentation</code> component accepts optional props for
-            programmatic integration:
+            All props are optional. The component works with zero configuration.
           </p>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem", marginTop: "1rem" }}>
+
+          <h3 style={{ fontSize: "0.9375rem", marginTop: "1.5rem", marginBottom: "0.5rem" }}>Callbacks</h3>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
             <tbody>
               <tr>
                 <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", width: "35%" }}>
                   <code>onAnnotationAdd</code>
                 </td>
                 <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
-                  Callback when annotation is added
+                  Fired when an annotation is added
                 </td>
               </tr>
               <tr>
                 <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-                  <code>copyToClipboard</code>
+                  <code>onAnnotationDelete</code>
                 </td>
                 <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
-                  Copy to clipboard on add (default: <code style={{ color: "rgba(0,0,0,0.7)" }}>true</code>)
+                  Fired when an annotation is deleted
                 </td>
               </tr>
               <tr>
                 <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+                  <code>onAnnotationUpdate</code>
+                </td>
+                <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Fired when an annotation comment is edited
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+                  <code>onAnnotationsClear</code>
+                </td>
+                <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Fired when all annotations are cleared
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.5rem 0" }}>
+                  <code>onCopy</code>
+                </td>
+                <td style={{ padding: "0.5rem 0", color: "rgba(0,0,0,0.5)" }}>
+                  Fired when copy button is clicked (receives markdown)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 style={{ fontSize: "0.9375rem", marginTop: "1.5rem", marginBottom: "0.5rem" }}>Behavior</h3>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
+            <tbody>
+              <tr>
+                <td style={{ padding: "0.5rem 0", width: "35%" }}>
+                  <code>copyToClipboard</code>
+                </td>
+                <td style={{ padding: "0.5rem 0", color: "rgba(0,0,0,0.5)" }}>
+                  Auto-copy on add (default: <code style={{ color: "rgba(0,0,0,0.7)" }}>true</code>)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 style={{ fontSize: "0.9375rem", marginTop: "1.5rem", marginBottom: "0.5rem" }}>Agent Sync</h3>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
+            <tbody>
+              <tr>
+                <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", width: "35%" }}>
                   <code>endpoint</code>
                 </td>
                 <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
-                  Server URL for agent sync
+                  Server URL (e.g., <code style={{ color: "rgba(0,0,0,0.7)" }}>&quot;http://localhost:4747&quot;</code>)
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+                  <code>sessionId</code>
+                </td>
+                <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Join an existing session (optional)
                 </td>
               </tr>
               <tr>
@@ -435,14 +500,41 @@ function App() {
                   <code>onSessionCreated</code>
                 </td>
                 <td style={{ padding: "0.5rem 0", color: "rgba(0,0,0,0.5)" }}>
-                  Callback when sync session starts
+                  Fired when new session is created (receives <code style={{ color: "rgba(0,0,0,0.7)" }}>sessionId: string</code>)
                 </td>
               </tr>
             </tbody>
           </table>
-          <p style={{ fontSize: "0.75rem", color: "rgba(0,0,0,0.5)", marginTop: "0.75rem" }}>
-            See the <a href="/api">API page</a> for the full list of callbacks.
-          </p>
+
+          <h3 style={{ fontSize: "0.9375rem", marginTop: "1.5rem", marginBottom: "0.5rem" }}>Demo Mode</h3>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
+            <tbody>
+              <tr>
+                <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", width: "35%" }}>
+                  <code>enableDemoMode</code>
+                </td>
+                <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Auto-play demo annotations (default: <code style={{ color: "rgba(0,0,0,0.7)" }}>false</code>)
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+                  <code>demoAnnotations</code>
+                </td>
+                <td style={{ padding: "0.5rem 0", borderBottom: "1px solid rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.5)" }}>
+                  Array of <code style={{ color: "rgba(0,0,0,0.7)" }}>{`{ selector, comment }`}</code> for demo
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.5rem 0" }}>
+                  <code>demoDelay</code>
+                </td>
+                <td style={{ padding: "0.5rem 0", color: "rgba(0,0,0,0.5)" }}>
+                  Delay between demo annotations in ms (default: <code style={{ color: "rgba(0,0,0,0.7)" }}>1000</code>)
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </section>
 
         <section>
