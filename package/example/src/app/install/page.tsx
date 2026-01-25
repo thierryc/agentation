@@ -199,7 +199,7 @@ function App() {
             All props are optional. The component works with zero configuration.
           </p>
 
-          <h3 style={{ fontSize: "0.9375rem", marginTop: "1.5rem", marginBottom: "0.5rem" }}>Callbacks</h3>
+          <h3 style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>Callbacks</h3>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
             <tbody>
               <tr>
@@ -245,7 +245,7 @@ function App() {
             </tbody>
           </table>
 
-          <h3 style={{ fontSize: "0.9375rem", marginTop: "1.5rem", marginBottom: "0.5rem" }}>Behavior</h3>
+          <h3 style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>Behavior</h3>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
             <tbody>
               <tr>
@@ -259,7 +259,7 @@ function App() {
             </tbody>
           </table>
 
-          <h3 style={{ fontSize: "0.9375rem", marginTop: "1.5rem", marginBottom: "0.5rem" }}>Agent Sync</h3>
+          <h3 style={{ marginTop: "1.5rem", marginBottom: "0.5rem" }}>Agent Sync</h3>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
             <tbody>
               <tr>
