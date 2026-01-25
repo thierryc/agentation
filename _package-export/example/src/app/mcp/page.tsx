@@ -27,6 +27,7 @@ export default function McpPage() {
           <p>
             The <code>agentation-mcp</code> package provides an MCP server that allows AI coding agents
             (like Claude Code) to receive and respond to web page annotations created with the Agentation toolbar.
+            This bypasses copy-paste entirely &mdash; just annotate and talk to your agent. It already has full context.
           </p>
           <p>
             It runs both an <strong>HTTP server</strong> (for the browser toolbar) and an{" "}

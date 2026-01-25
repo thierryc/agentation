@@ -95,7 +95,13 @@ export default function AgentationDocs() {
             <li>Paste into your agent</li>
           </ol>
           <p style={{ fontSize: '0.8125rem', color: 'rgba(0,0,0,0.55)', marginTop: '1rem' }}>
-            With <Link href="/mcp">MCP</Link>, you can skip the copy-paste step entirely &mdash; your agent already sees what you&apos;re pointing at. Just say &ldquo;address my feedback&rdquo; or &ldquo;fix annotation 3.&rdquo;
+            <strong style={{
+              display: 'inline',
+              margin: '-0.04em -0.06em',
+              padding: '0.04em 0.06em',
+              borderRadius: '0.2em 0.15em',
+              backgroundImage: 'linear-gradient(75deg, rgba(250, 204, 21, 0.5), rgba(250, 204, 21, 0.15) 4%, rgba(250, 204, 21, 0.3) 96%, rgba(250, 204, 21, 0.6))',
+            }}>Note:</strong> With <Link href="/mcp">MCP</Link>, you can skip the copy-paste step entirely &mdash; your agent already sees what you&apos;re pointing at. Just say &ldquo;address my feedback&rdquo; or &ldquo;fix annotation 3.&rdquo;
           </p>
         </section>
 
