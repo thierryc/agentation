@@ -2579,7 +2579,7 @@ export function PageFeedbackToolbarCSS({
                           ? `Connected${currentSessionId ? ` (${currentSessionId.slice(0, 8)}...)` : ""}`
                           : connectionStatus === "connecting"
                             ? "Connecting..."
-                            : "Start the server with: npx agentation server"
+                            : "Not connected. Run: npx agentation-mcp server"
                       }
                     >
                       <IconHelp size={20} />
