@@ -1762,9 +1762,13 @@ export function PageFeedbackToolbarCSS({
       const deletedIndex = annotations.findIndex((a) => a.id === id);
       const deletedAnnotation = annotations[deletedIndex];
 
-      // Close edit panel if deleting the annotation being edited
+      // Close edit panel with exit animation if deleting the annotation being edited
       if (editingAnnotation?.id === id) {
-        setEditingAnnotation(null);
+        setEditExiting(true);
+        setTimeout(() => {
+          setEditingAnnotation(null);
+          setEditExiting(false);
+        }, 150);
       }
 
       setDeletingMarkerId(id);
@@ -2221,7 +2225,7 @@ export function PageFeedbackToolbarCSS({
       >
         {/* Morphing container */}
         <div
-          className={`${styles.toolbarContainer} ${!isDarkMode ? styles.light : ""} ${isActive ? styles.expanded : styles.collapsed} ${showEntranceAnimation ? styles.entrance : ""} ${isDraggingToolbar ? styles.dragging : ""} ${connectionStatus === "connected" ? styles.serverConnected : ""}`}
+          className={`${styles.toolbarContainer} ${!isDarkMode ? styles.light : ""} ${isActive ? styles.expanded : styles.collapsed} ${showEntranceAnimation ? styles.entrance : ""} ${isDraggingToolbar ? styles.dragging : ""} ${settings.webhookUrl || webhookUrl ? styles.serverConnected : ""}`}
           onClick={
             !isActive
               ? (e) => {
@@ -2718,10 +2722,10 @@ export function PageFeedbackToolbarCSS({
                 <div
                   className={`${styles.settingsLabel} ${!isDarkMode ? styles.light : ""}`}
                 >
-                  Webhook Enabled
+                  Auto-Send
                   <span
                     className={styles.helpIcon}
-                    data-tooltip="Send annotation events to configured webhook URL"
+                    data-tooltip="Automatically send annotation events to configured webhook URL"
                   >
                     <IconHelp size={20} />
                   </span>
