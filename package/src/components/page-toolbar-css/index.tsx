@@ -469,6 +469,7 @@ export function PageFeedbackToolbarCSS({
   const [settingsPage, setSettingsPage] = useState<"main" | "automations">(
     "main",
   );
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [tooltipsHidden, setTooltipsHidden] = useState(false);
 
   // Hide tooltips after button click until mouse leaves
@@ -479,6 +480,88 @@ export function PageFeedbackToolbarCSS({
   const showTooltipsAgain = () => {
     setTooltipsHidden(false);
   };
+
+  // Tooltip component that renders via portal to escape overflow clipping
+  const Tooltip = ({ content, children }: { content: string; children: React.ReactNode }) => {
+    const [isHovering, setIsHovering] = useState(false);
+    const [visible, setVisible] = useState(false);
+    const [position, setPosition] = useState({ top: 0, right: 0 });
+    const triggerRef = useRef<HTMLSpanElement>(null);
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const updatePosition = () => {
+      if (triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect();
+        setPosition({
+          top: rect.top + rect.height / 2,
+          right: window.innerWidth - rect.left + 8,
+        });
+      }
+    };
+
+    const handleMouseEnter = () => {
+      setIsHovering(true);
+      updatePosition();
+      timeoutRef.current = setTimeout(() => {
+        setVisible(true);
+      }, 500); // 0.5s delay before showing
+    };
+
+    const handleMouseLeave = () => {
+      setIsHovering(false);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      setVisible(false);
+    };
+
+    useEffect(() => {
+      return () => {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      };
+    }, []);
+
+    return (
+      <>
+        <span
+          ref={triggerRef}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          {children}
+        </span>
+        {isHovering && createPortal(
+          <div
+            style={{
+              position: 'fixed',
+              top: position.top,
+              right: position.right,
+              transform: 'translateY(-50%)',
+              padding: '6px 10px',
+              background: '#383838',
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontSize: '11px',
+              fontWeight: 400,
+              lineHeight: '14px',
+              borderRadius: '10px',
+              width: '180px',
+              textAlign: 'left' as const,
+              zIndex: 100020,
+              pointerEvents: 'none' as const,
+              boxShadow: '0px 1px 8px rgba(0, 0, 0, 0.28)',
+              opacity: visible && !isTransitioning ? 1 : 0,
+              transition: 'opacity 0.15s ease',
+            }}
+          >
+            {content}
+          </div>,
+          document.body
+        )}
+      </>
+    );
+  };
+
   const [settings, setSettings] = useState<ToolbarSettings>(DEFAULT_SETTINGS);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showEntranceAnimation, setShowEntranceAnimation] = useState(false);
@@ -561,6 +644,12 @@ export function PageFeedbackToolbarCSS({
       return () => clearTimeout(timer);
     }
   }, [showSettings]);
+
+  useEffect(() => {
+    setIsTransitioning(true);
+    const timer = setTimeout(() => setIsTransitioning(false), 350);
+    return () => clearTimeout(timer);
+  }, [settingsPage]);
 
   // Unified marker visibility - depends on BOTH toolbar active AND showMarkers toggle
   // This single effect handles all marker show/hide animations
@@ -2448,7 +2537,7 @@ export function PageFeedbackToolbarCSS({
                 : undefined
             }
           >
-            <div className={styles.settingsPanelContainer}>
+            <div className={`${styles.settingsPanelContainer} ${isTransitioning ? styles.transitioning : ''}`}>
               <div
                 className={`${styles.settingsPage} ${settingsPage === "automations" ? styles.slideLeft : ""}`}
               >
@@ -2483,12 +2572,11 @@ export function PageFeedbackToolbarCSS({
                   className={`${styles.settingsLabel} ${!isDarkMode ? styles.light : ""}`}
                 >
                   Output Detail
-                  <span
-                    className={styles.helpIcon}
-                    data-tooltip="Controls how much detail is included in the copied output"
-                  >
-                    <IconHelp size={20} />
-                  </span>
+                  <Tooltip content="Controls how much detail is included in the copied output">
+                    <span className={styles.helpIcon}>
+                      <IconHelp size={20} />
+                    </span>
+                  </Tooltip>
                 </div>
                 <button
                   className={`${styles.cycleButton} ${!isDarkMode ? styles.light : ""}`}
@@ -2532,16 +2620,15 @@ export function PageFeedbackToolbarCSS({
                   className={`${styles.settingsLabel} ${!isDarkMode ? styles.light : ""}`}
                 >
                   React Components
-                  <span
-                    className={styles.helpIcon}
-                    data-tooltip={
-                      !isLocalhost
-                        ? "Only available on localhost"
-                        : "Include React component names in annotations"
-                    }
-                  >
-                    <IconHelp size={20} />
-                  </span>
+                  <Tooltip content={
+                    !isLocalhost
+                      ? "Only available on localhost"
+                      : "Include React component names in annotations"
+                  }>
+                    <span className={styles.helpIcon}>
+                      <IconHelp size={20} />
+                    </span>
+                  </Tooltip>
                 </div>
                 <label
                   className={`${styles.toggleSwitch} ${!isLocalhost ? styles.disabled : ""}`}
@@ -2621,12 +2708,11 @@ export function PageFeedbackToolbarCSS({
                   className={`${styles.toggleLabel} ${!isDarkMode ? styles.light : ""}`}
                 >
                   Clear after output
-                  <span
-                    className={styles.helpIcon}
-                    data-tooltip="Automatically clear annotations after copying"
-                  >
-                    <IconHelp size={20} />
-                  </span>
+                  <Tooltip content="Automatically clear annotations after copying">
+                    <span className={styles.helpIcon}>
+                      <IconHelp size={20} />
+                    </span>
+                  </Tooltip>
                 </span>
               </label>
               <label className={`${styles.settingsToggle} ${styles.settingsToggleMarginBottom}`}>
