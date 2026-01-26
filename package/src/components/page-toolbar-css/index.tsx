@@ -125,7 +125,6 @@ type HoverInfo = {
 type OutputDetailLevel = "compact" | "standard" | "detailed" | "forensic";
 // ReactComponentMode is now derived from outputDetail when reactEnabled is true
 type ReactComponentMode = "smart" | "filtered" | "all" | "off";
-type AgentMode = "claude-code" | "manual" | "custom";
 type MarkerClickBehavior = "edit" | "delete";
 
 type ToolbarSettings = {
@@ -134,7 +133,6 @@ type ToolbarSettings = {
   annotationColor: string;
   blockInteractions: boolean;
   reactEnabled: boolean; // Simple toggle - mode derived from outputDetail
-  agentMode: AgentMode;
   markerClickBehavior: MarkerClickBehavior;
   webhooksEnabled: boolean;
 };
@@ -145,7 +143,6 @@ const DEFAULT_SETTINGS: ToolbarSettings = {
   annotationColor: "#3c82f7",
   blockInteractions: false,
   reactEnabled: true,
-  agentMode: "manual",
   markerClickBehavior: "edit",
   webhooksEnabled: true,
 };
@@ -157,28 +154,6 @@ const OUTPUT_TO_REACT_MODE: Record<OutputDetailLevel, ReactComponentMode> = {
   detailed: "smart",
   forensic: "all",
 };
-
-const AGENT_MODE_OPTIONS: {
-  value: AgentMode;
-  label: string;
-  tooltip: string;
-}[] = [
-  {
-    value: "claude-code",
-    label: "Claude Code",
-    tooltip: "Annotations sync automatically when you message Claude",
-  },
-  {
-    value: "manual",
-    label: "Manual",
-    tooltip: "Click to send annotations to your agent",
-  },
-  {
-    value: "custom",
-    label: "Custom",
-    tooltip: "Triggers configured webhooks when clicked",
-  },
-];
 
 const MARKER_CLICK_OPTIONS: {
   value: MarkerClickBehavior;
@@ -2268,7 +2243,6 @@ export function PageFeedbackToolbarCSS({
         {/* Morphing container */}
         <div
           className={`${styles.toolbarContainer} ${!isDarkMode ? styles.light : ""} ${isActive ? styles.expanded : styles.collapsed} ${showEntranceAnimation ? styles.entrance : ""} ${isDraggingToolbar ? styles.dragging : ""} ${connectionStatus === "connected" ? styles.serverConnected : ""}`}
-          data-agent-mode={settings.agentMode}
           onClick={
             !isActive
               ? (e) => {
@@ -2377,7 +2351,7 @@ export function PageFeedbackToolbarCSS({
               </span>
             </div>
 
-            {/* Sync button - auto-synced state for Claude Code, clickable for Manual/Custom/onSubmit */}
+            {/* Send button */}
             <div
               className={`${styles.buttonWrapper} ${styles.sendButtonWrapper} ${connectionStatus === "connected" || onSubmit ? styles.sendButtonVisible : ""}`}
             >
@@ -2385,47 +2359,30 @@ export function PageFeedbackToolbarCSS({
                 className={`${styles.controlButton} ${!isDarkMode ? styles.light : ""}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (settings.agentMode !== "claude-code") {
-                    sendToAgent();
-                  }
+                  sendToAgent();
                 }}
-                disabled={
-                  !hasAnnotations && settings.agentMode !== "claude-code"
-                }
-                data-active={sent || settings.agentMode === "claude-code"}
-                data-auto-sync={settings.agentMode === "claude-code"}
+                disabled={!hasAnnotations}
+                data-active={sent}
                 data-failed={sendFailed}
                 tabIndex={connectionStatus === "connected" || onSubmit ? 0 : -1}
               >
-                <IconSendAnimated
-                  size={24}
-                  sent={sent || settings.agentMode === "claude-code"}
-                />
-                {hasAnnotations &&
-                  !sent &&
-                  !sendFailed &&
-                  settings.agentMode !== "claude-code" && (
-                    <span
-                      className={`${styles.buttonBadge} ${!isDarkMode ? styles.light : ""}`}
-                    >
-                      {annotations.length}
-                    </span>
-                  )}
+                <IconSendAnimated size={24} sent={sent} />
+                {hasAnnotations && !sent && !sendFailed && (
+                  <span
+                    className={`${styles.buttonBadge} ${!isDarkMode ? styles.light : ""}`}
+                  >
+                    {annotations.length}
+                  </span>
+                )}
               </button>
               <span
                 className={`${styles.buttonTooltip} ${sent || sendFailed ? styles.tooltipVisible : ""}`}
               >
-                {settings.agentMode === "claude-code"
-                  ? "Auto-synced"
-                  : sendFailed
-                    ? "No listeners"
-                    : sent
-                      ? settings.agentMode === "custom"
-                        ? `Sent to ${lastDelivery?.webhooks || 0} webhook${lastDelivery?.webhooks === 1 ? "" : "s"}`
-                        : "Sent!"
-                      : settings.agentMode === "custom"
-                        ? "Trigger webhooks"
-                        : "Send to agent"}
+                {sendFailed
+                  ? "No listeners"
+                  : sent
+                    ? "Sent!"
+                    : "Send to agent"}
               </span>
             </div>
 
@@ -2748,81 +2705,28 @@ export function PageFeedbackToolbarCSS({
                 <div
                   className={`${styles.settingsLabel} ${!isDarkMode ? styles.light : ""}`}
                 >
-                  Agent Mode
+                  Webhooks
                   <span
                     className={styles.helpIcon}
-                    data-tooltip={
-                      AGENT_MODE_OPTIONS.find(
-                        (opt) => opt.value === settings.agentMode,
-                      )?.tooltip || "How annotations are sent to your AI agent"
-                    }
+                    data-tooltip="Send annotation events to configured webhook URL"
                   >
                     <IconHelp size={20} />
                   </span>
                 </div>
-                <button
-                  className={`${styles.cycleButton} ${!isDarkMode ? styles.light : ""}`}
-                  onClick={() => {
-                    const currentIndex = AGENT_MODE_OPTIONS.findIndex(
-                      (opt) => opt.value === settings.agentMode,
-                    );
-                    const nextIndex =
-                      (currentIndex + 1) % AGENT_MODE_OPTIONS.length;
-                    setSettings((s) => ({
-                      ...s,
-                      agentMode: AGENT_MODE_OPTIONS[nextIndex].value,
-                    }));
-                  }}
-                >
-                  <span
-                    key={settings.agentMode}
-                    className={styles.cycleButtonText}
-                  >
-                    {
-                      AGENT_MODE_OPTIONS.find(
-                        (opt) => opt.value === settings.agentMode,
-                      )?.label
+                <label className={styles.toggleSwitch}>
+                  <input
+                    type="checkbox"
+                    checked={settings.webhooksEnabled}
+                    onChange={() =>
+                      setSettings((s) => ({
+                        ...s,
+                        webhooksEnabled: !s.webhooksEnabled,
+                      }))
                     }
-                  </span>
-                  <span className={styles.cycleDots}>
-                    {AGENT_MODE_OPTIONS.map((option) => (
-                      <span
-                        key={option.value}
-                        className={`${styles.cycleDot} ${!isDarkMode ? styles.light : ""} ${settings.agentMode === option.value ? styles.active : ""}`}
-                      />
-                    ))}
-                  </span>
-                </button>
+                  />
+                  <span className={styles.toggleSlider} />
+                </label>
               </div>
-
-              {webhookUrl && (
-                <div className={styles.settingsRow} style={{ marginTop: 4 }}>
-                  <div
-                    className={`${styles.settingsLabel} ${!isDarkMode ? styles.light : ""}`}
-                  >
-                    Webhooks
-                    <span
-                      className={styles.helpIcon}
-                      data-tooltip="Send annotation events to configured webhook URL"
-                    >
-                      <IconHelp size={20} />
-                    </span>
-                  </div>
-                  <label className={styles.toggleSwitch}>
-                    <input
-                      type="checkbox"
-                      checked={settings.webhooksEnabled}
-                      onChange={() =>
-                        setSettings((s) => ({
-                          ...s,
-                          webhooksEnabled: !s.webhooksEnabled,
-                        }))
-                      }
-                    />
-                    <span className={styles.toggleSlider} />
-                  </label>
-                </div>
-              )}
             </div>
 
             <div className={styles.settingsSection}>
