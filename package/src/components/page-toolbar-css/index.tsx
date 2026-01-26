@@ -1624,10 +1624,11 @@ export function PageFeedbackToolbarCSS({
 
   // Fire webhook for annotation events - returns true on success, false on failure
   const fireWebhook = useCallback(
-    async (event: string, payload: Record<string, unknown>): Promise<boolean> => {
+    async (event: string, payload: Record<string, unknown>, force?: boolean): Promise<boolean> => {
       // Settings webhookUrl overrides prop
       const targetUrl = settings.webhookUrl || webhookUrl;
-      if (!targetUrl || !settings.webhooksEnabled) return false;
+      // Skip if no URL, or if webhooks disabled (unless force is true for manual sends)
+      if (!targetUrl || (!settings.webhooksEnabled && !force)) return false;
 
       try {
         const response = await fetch(targetUrl, {
@@ -1960,8 +1961,8 @@ export function PageFeedbackToolbarCSS({
     // Brief delay for the fade effect
     await new Promise((resolve) => setTimeout(resolve, 150));
 
-    // Fire webhook and check result
-    const success = await fireWebhook("submit", { output, annotations });
+    // Fire webhook and check result (force=true to bypass webhooksEnabled check for manual sends)
+    const success = await fireWebhook("submit", { output, annotations }, true);
 
     // Show result
     setSendState(success ? "sent" : "failed");
