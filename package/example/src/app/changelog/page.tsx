@@ -26,6 +26,23 @@ const badgeLabels: Record<ChangeType, string> = {
 
 const releases: Release[] = [
   {
+    version: "2.0.0",
+    date: "January 25, 2026",
+    summary: "The shift from \"annotate, copy, paste\" to \"annotate and collaborate.\" Agents now see your annotations directly.",
+    changes: [
+      { type: "added", text: <><a href="/mcp" className="styled-link">MCP server</a> for direct agent integration — agents can fetch, acknowledge, resolve, and dismiss annotations</> },
+      { type: "added", text: "HTTP API and Server-Sent Events for real-time updates" },
+      { type: "added", text: <>Per-tab <a href="/mcp#sessions" className="styled-link">sessions</a> with rich annotation metadata (timestamps, status, resolver info)</> },
+      { type: "added", text: "Status transitions: pending → acknowledged → resolved/dismissed, all timestamped" },
+      { type: "added", text: <><a href="/schema" className="styled-link">Annotation Format Schema</a> with intent and severity fields for prioritization</> },
+      { type: "added", text: "JSON Schema and TypeScript definitions for the annotation format" },
+      { type: "added", text: <><a href="/webhooks" className="styled-link">Webhooks</a> to subscribe to annotation events with structured JSON payloads</> },
+      { type: "added", text: <><a href="/features#react-detection" className="styled-link">React component detection</a> — shows full component hierarchy on hover, not just DOM elements</> },
+      { type: "added", text: "Configurable marker click behavior — choose between edit or delete on click" },
+      { type: "improved", text: "Component detection adapts to output detail level (Compact, Standard, Detailed, Forensic)" },
+    ],
+  },
+  {
     version: "1.3.2",
     date: "January 24, 2026",
     changes: [
@@ -103,7 +120,13 @@ export default function ChangelogPage() {
                   textDecoration: "none",
                 }}
               >
-                {release.version}
+                {release.version === "1.0.0" || release.version === "2.0.0" ? (
+                  <span className="sketchy-underline" style={{ "--marker-color": "#febc2e" } as React.CSSProperties}>
+                    {release.version}
+                  </span>
+                ) : (
+                  release.version
+                )}
               </a>
               <span
                 style={{
@@ -120,7 +143,7 @@ export default function ChangelogPage() {
 
             {release.changes && release.changes.length > 0 && (
               <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
-                {(["fixed", "improved", "added", "removed"] as ChangeType[]).map((type) => {
+                {(["added", "improved", "fixed", "removed"] as ChangeType[]).map((type) => {
                   const items = release.changes!.filter((c) => c.type === type);
                   if (items.length === 0) return null;
                   return (
