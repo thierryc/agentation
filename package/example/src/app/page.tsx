@@ -204,6 +204,7 @@ export default function AgentationDocs() {
 
         <section className="quickstart-links">
           <p><Link href="/mcp" className="styled-link">Set up real-time sync with MCP <span className="arrow">→</span></Link></p>
+          <p><Link href="/webhooks" className="styled-link">Push annotations to external services <span className="arrow">→</span></Link></p>
           <p><Link href="/api" className="styled-link">Build your own integration with the API <span className="arrow">→</span></Link></p>
         </section>
 

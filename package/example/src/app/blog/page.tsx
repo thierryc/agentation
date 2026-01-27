@@ -55,7 +55,7 @@ export default function BlogPage() {
                     }}
                   />
                 </div>
-                <div style={{ padding: "1rem 1.25rem" }}>
+                <div style={{ padding: "1rem 1.25rem", background: "rgba(0, 0, 0, 0.02)" }}>
                   <div
                     style={{
                       display: "flex",

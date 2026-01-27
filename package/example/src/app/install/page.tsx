@@ -137,9 +137,9 @@ function CopyablePackageManager({ name, command }: { name: string; command: stri
       {name}
       <svg
         ref={scope}
-        style={{ overflow: "visible", position: "relative", top: "-0.5px" }}
-        width={14}
-        height={14}
+        style={{ overflow: "visible", position: "relative", top: "1.5px" }}
+        width={20}
+        height={20}
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"

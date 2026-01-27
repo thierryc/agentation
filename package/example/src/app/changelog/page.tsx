@@ -38,7 +38,6 @@ const releases: Release[] = [
       { type: "added", text: "JSON Schema and TypeScript definitions for the annotation format" },
       { type: "added", text: <><a href="/webhooks" className="styled-link">Webhooks</a> to subscribe to annotation events with structured JSON payloads</> },
       { type: "added", text: <><a href="/features#react-detection" className="styled-link">React component detection</a> — shows full component hierarchy on hover, not just DOM elements</> },
-      { type: "added", text: "Configurable marker click behavior — choose between edit or delete on click" },
       { type: "improved", text: "Component detection adapts to output detail level (Compact, Standard, Detailed, Forensic)" },
       { type: "improved", text: "Cursor styles in settings panel — I-beam for text inputs, pointer for clickable items" },
     ],

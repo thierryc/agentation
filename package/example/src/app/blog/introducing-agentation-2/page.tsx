@@ -22,31 +22,13 @@ export default function Agentation2Page() {
           <p className="tagline">A new way for humans and AI to collaborate on UI</p>
         </header>
 
-        <div
-          style={{
-            borderRadius: "0.5rem",
-            overflow: "hidden",
-            margin: "0.5rem 0 1rem",
-            border: "1px solid rgba(0, 0, 0, 0.08)",
-          }}
-        >
-          <img
-            src="/blog/agentation-2.png"
-            alt="Agentation 2.0"
-            style={{
-              width: "100%",
-              display: "block",
-            }}
-          />
-        </div>
-
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "0.75rem" }}>
           <p style={{ margin: 0 }}>
-            Since launch, Agentation has become part of how a lot of developers work with AI on UI. 1,000+ GitHub stars, tens of thousands of installs.
+            Since launch, Agentation has already become part of how a lot of developers work with AI on UI. <a href="https://github.com/benjitaylor/agentation" target="_blank" rel="noopener noreferrer">1,500+ GitHub stars</a>, <a href="https://www.npmjs.com/package/agentation" target="_blank" rel="noopener noreferrer">tens of thousands of installs</a>.
           </p>
 
           <p style={{ margin: 0 }}>
-            Version 1 was <em>annotate, copy, paste</em>. You&rsquo;d annotate something, copy the structured output, hand it to your agent. Good context, but a handoff.
+            Version 1 was <em>annotate, copy, paste</em>. You&rsquo;d annotate something, copy the structured output, hand it to your agent. Good context, but requires a manual handoff.
           </p>
 
           <p style={{ margin: 0 }}>
@@ -100,7 +82,7 @@ export default function Agentation2Page() {
         <section>
           <h2 id="schema">Standardized Schema</h2>
           <p>
-            We&rsquo;ve published a formal <Link href="/schema">Annotation Format Schema</Link> that defines exactly how annotations are structured. This isn&rsquo;t just documentation. It&rsquo;s a contract that makes annotations portable and predictable.
+            We&rsquo;ve published a formal <Link href="/schema">Annotation Format Schema</Link> that defines exactly how annotations are structured. The schema makes annotations portable across tools and predictable for anything that consumes them.
           </p>
           <p>
             The schema includes <Link href="/schema#annotation-object">intent and severity fields</Link>, so you can flag something as a blocking bug vs a minor suggestion, or distinguish between &ldquo;fix this&rdquo; and &ldquo;I have a question about this.&rdquo; Agents can use these signals to prioritize work automatically.
@@ -113,7 +95,7 @@ export default function Agentation2Page() {
         <section>
           <h2 id="webhooks">Webhooks</h2>
           <p>
-            Need annotations somewhere other than your terminal? <Link href="/webhooks">Webhooks</Link> let you subscribe to annotation events and push them anywhere. Configure a URL, and every annotation gets delivered as a structured JSON payload.
+            <Link href="/webhooks">Webhooks</Link> let you subscribe to annotation events and push them anywhere. Configure a URL, and every annotation gets delivered as a structured JSON payload.
           </p>
           <p>
             Some workflows you could build:
@@ -145,15 +127,10 @@ export default function Agentation2Page() {
         <section>
           <h2 id="whats-next">What&rsquo;s Next</h2>
           <p>
-            We&rsquo;re just getting started. The vision is a world where UI feedback loops shrink from hours to seconds. Point at something, say what&rsquo;s wrong, and watch it get fixed in real time.
+            Agentation is still new. The vision is a world where UI feedback loops shrink from hours to seconds. Point at something, say what&rsquo;s wrong, and watch it get fixed in real time.
           </p>
           <p>
             If you haven&rsquo;t tried Agentation yet, <Link href="/install">install it</Link> and see how it changes the way you work with AI agents. If you&rsquo;re already using it, update to 2.0 and let us know what you think.
-          </p>
-          <p style={{ marginTop: "1.5rem", fontSize: "0.8125rem" }}>
-            <Link href="/blog" style={{ color: "#4a9eff", textDecoration: "none" }}>
-              &larr; Back to blog
-            </Link>
           </p>
         </section>
       </article>
