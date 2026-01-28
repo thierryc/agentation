@@ -1393,7 +1393,7 @@ $green: #34c759;
   flex: 1;
   min-height: 60px;
   box-sizing: border-box;
-  margin-top: 10px;
+  margin-top: 11px;
   padding: 8px 10px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
@@ -2014,7 +2014,7 @@ $green: #34c759;
   }
 
   &:hover svg {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.5);
   }
 
   &.helpIconNudgeDown svg {
@@ -2027,6 +2027,10 @@ $green: #34c759;
 
   &.helpIconNudge1-5 svg {
     transform: translateY(1.5px);
+  }
+
+  &.helpIconNudge2 svg {
+    transform: translateY(2px);
   }
 }
 
@@ -2287,7 +2291,7 @@ $green: #34c759;
     }
 
     .helpIcon:hover svg {
-      color: rgba(0, 0, 0, 0.4);
+      color: rgba(0, 0, 0, 0.5);
     }
   }
 }

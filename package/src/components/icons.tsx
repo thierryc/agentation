@@ -109,7 +109,6 @@ export const IconHelp = ({ size = 20 }: { size?: number }) => (
       r="5.25"
       stroke="currentColor"
       strokeWidth="1.25"
-      opacity="0.5"
     />
     <path
       d="M8.5 8.75C8.5 7.92 9.17 7.25 10 7.25C10.83 7.25 11.5 7.92 11.5 8.75C11.5 9.58 10.83 10.25 10 10.25V11"
@@ -117,9 +116,8 @@ export const IconHelp = ({ size = 20 }: { size?: number }) => (
       strokeWidth="1.25"
       strokeLinecap="round"
       strokeLinejoin="round"
-      opacity="0.5"
     />
-    <circle cx="10" cy="13" r="0.75" fill="currentColor" opacity="0.5" />
+    <circle cx="10" cy="13" r="0.75" fill="currentColor" />
   </svg>
 );
 
@@ -216,14 +214,14 @@ export const IconCopyAnimated = ({ size = 24, copied = false }: { size?: number;
     <g className="check-icon" style={{ opacity: copied ? 1 : 0, transform: copied ? 'scale(1)' : 'scale(0.8)', transformOrigin: 'center' }}>
       <path
         d="M12 20C7.58172 20 4 16.4182 4 12C4 7.58172 7.58172 4 12 4C16.4182 4 20 7.58172 20 12C20 16.4182 16.4182 20 12 20Z"
-        stroke="currentColor"
+        stroke="#22c55e"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M15 10L11 14.25L9.25 12.25"
-        stroke="currentColor"
+        stroke="#22c55e"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"

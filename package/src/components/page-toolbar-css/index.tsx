@@ -2929,7 +2929,7 @@ export function PageFeedbackToolbarCSS({
                       Clear on copy/send
                       <Tooltip content="Automatically clear annotations after copying">
                         <span
-                          className={`${styles.helpIcon} ${styles["helpIconNudge1-5"]}`}
+                          className={`${styles.helpIcon} ${styles.helpIconNudge2}`}
                         >
                           <IconHelp size={20} />
                         </span>
