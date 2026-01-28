@@ -392,6 +392,7 @@ export function SideNav() {
         { id: 'computed-styles', text: 'Computed Styles' },
         { id: 'react-detection', text: 'React Detection' },
         { id: 'keyboard-shortcuts', text: 'Keyboard Shortcuts' },
+        { id: 'agent-sync', text: 'Agent Sync' },
         { id: 'settings', text: 'Settings' },
       ],
     },

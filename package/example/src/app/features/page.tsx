@@ -1,7 +1,7 @@
 "use client";
 
 import { Footer } from "../Footer";
-import { FeaturesDemo, SettingsDemo, SmartIdentificationDemo, MarkerKeyDemo, ComputedStylesDemo, ReactDetectionDemo } from "../components/FeaturesDemo";
+import { FeaturesDemo, SettingsDemo, SmartIdentificationDemo, MarkerKeyDemo, ComputedStylesDemo, ReactDetectionDemo, AgentChatDemo } from "../components/FeaturesDemo";
 
 export default function FeaturesPage() {
   return (
@@ -118,20 +118,13 @@ export default function FeaturesPage() {
       </section>
 
       <section>
-        <h2 id="agent-communication">Agent communication</h2>
+        <h2 id="agent-sync">Agent sync</h2>
         <p>
           With <a href="/mcp">MCP integration</a> and the <a href="/schema">Annotation Format Schema</a>, annotations become a two-way conversation.
           Agents can query, respond to, and manage your feedback:
         </p>
-        <div style={{ marginTop: '1rem', fontSize: '0.8125rem', lineHeight: 1.7 }}>
-          <p style={{ margin: '0.5rem 0' }}><span style={{ color: 'rgba(0,0,0,0.4)' }}>You:</span> &ldquo;What annotations do I have?&rdquo;</p>
-          <p style={{ margin: '0.5rem 0' }}><span style={{ color: '#4a9eff' }}>Agent:</span> &ldquo;3 annotations: button on /checkout, contrast on /settings, typo on /about.&rdquo;</p>
-          <p style={{ margin: '0.5rem 0' }}><span style={{ color: 'rgba(0,0,0,0.4)' }}>You:</span> &ldquo;Fix the button&rdquo;</p>
-          <p style={{ margin: '0.5rem 0' }}><span style={{ color: '#4a9eff' }}>Agent:</span> &ldquo;Left-align or center with the form?&rdquo;</p>
-          <p style={{ margin: '0.5rem 0' }}><span style={{ color: 'rgba(0,0,0,0.4)' }}>You:</span> &ldquo;Center&rdquo;</p>
-          <p style={{ margin: '0.5rem 0' }}><span style={{ color: '#4a9eff' }}>Agent:</span> &ldquo;Done. Marked as resolved.&rdquo;</p>
-        </div>
-        <p style={{ marginTop: '1rem', fontSize: '0.8125rem', color: 'rgba(0,0,0,0.5)' }}>
+        <AgentChatDemo />
+        <p style={{ marginTop: '0.5rem', fontSize: '0.8125rem', color: 'rgba(0,0,0,0.5)' }}>
           Agents can acknowledge, ask questions, resolve with summaries, or dismiss with reasons.
         </p>
       </section>

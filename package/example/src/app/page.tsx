@@ -82,7 +82,7 @@ function ShadowModal({ isOpen, isExiting, onClose }: { isOpen: boolean; isExitin
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(255, 255, 255, 0.7);
       backdrop-filter: blur(4px);
       z-index: 9999;
       animation: modalOverlayEnter 0.2s ease forwards;
@@ -95,9 +95,9 @@ function ShadowModal({ isOpen, isExiting, onClose }: { isOpen: boolean; isExitin
       transform: translate(-50%, -50%);
       width: 90%;
       max-width: 400px;
-      background: #1a1a1a;
+      background: #fff;
       border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
       z-index: 10000;
       padding: 1.5rem;
       animation: modalEnter 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -105,22 +105,22 @@ function ShadowModal({ isOpen, isExiting, onClose }: { isOpen: boolean; isExitin
     }
     .modal-content.exiting { animation: modalExit 0.15s ease forwards; }
     .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-    .modal-title { font-size: 1rem; font-weight: 600; color: white; margin: 0; }
+    .modal-title { font-size: 1rem; font-weight: 600; color: #111; margin: 0; }
     .modal-close {
       width: 28px; height: 28px; border-radius: 50%; background: transparent; border: none;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
-      color: rgba(255, 255, 255, 0.5); transition: background 0.15s ease, color 0.15s ease;
+      color: rgba(0, 0, 0, 0.4); transition: background 0.15s ease, color 0.15s ease;
     }
-    .modal-close:hover { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); }
-    .modal-body { color: rgba(255, 255, 255, 0.7); font-size: 0.875rem; line-height: 1.5; margin-bottom: 1.25rem; }
+    .modal-close:hover { background: rgba(0, 0, 0, 0.05); color: rgba(0, 0, 0, 0.7); }
+    .modal-body { color: rgba(0, 0, 0, 0.65); font-size: 0.875rem; line-height: 1.5; margin-bottom: 1.25rem; }
     .modal-body p + p { margin-top: 0.75rem; }
     .modal-footer { display: flex; justify-content: flex-end; gap: 0.5rem; }
     .modal-btn {
-      padding: 0.5rem 1rem; font-size: 0.8125rem; font-weight: 500; border-radius: 8px;
+      padding: 0.5rem 1rem; font-size: 0.8125rem; font-weight: 600; border-radius: 8px;
       border: none; cursor: pointer; transition: background 0.15s ease, color 0.15s ease;
     }
-    .modal-btn-secondary { background: transparent; color: rgba(255, 255, 255, 0.5); }
-    .modal-btn-secondary:hover { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); }
+    .modal-btn-secondary { background: transparent; color: rgba(0, 0, 0, 0.5); }
+    .modal-btn-secondary:hover { background: rgba(0, 0, 0, 0.05); color: rgba(0, 0, 0, 0.8); }
     .modal-btn-primary { background: #3c82f7; color: white; }
     .modal-btn-primary:hover { background: #2d6fe0; }
   `;
@@ -144,7 +144,7 @@ function ShadowModal({ isOpen, isExiting, onClose }: { isOpen: boolean; isExitin
         </div>
         <div className="modal-footer">
           <button className="modal-btn modal-btn-secondary" onClick={onClose}>Cancel</button>
-          <button className="modal-btn modal-btn-primary" onClick={onClose}>Got it</button>
+          <button className="modal-btn modal-btn-primary" onClick={onClose}>Got It</button>
         </div>
       </div>
     </>
@@ -387,7 +387,7 @@ export default function AgentationDocs() {
             .modal-overlay {
               position: fixed;
               inset: 0;
-              background: rgba(0, 0, 0, 0.5);
+              background: rgba(255, 255, 255, 0.7);
               backdrop-filter: blur(4px);
               z-index: 9999;
               animation: modalOverlayEnter 0.2s ease forwards;
@@ -402,9 +402,9 @@ export default function AgentationDocs() {
               transform: translate(-50%, -50%);
               width: 90%;
               max-width: 400px;
-              background: #1a1a1a;
+              background: #fff;
               border-radius: 16px;
-              box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.08);
+              box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
               z-index: 10000;
               padding: 1.5rem;
               animation: modalEnter 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -422,7 +422,7 @@ export default function AgentationDocs() {
             .modal-title {
               font-size: 1rem;
               font-weight: 600;
-              color: white;
+              color: #111;
               margin: 0;
             }
             .modal-close {
@@ -435,15 +435,15 @@ export default function AgentationDocs() {
               display: flex;
               align-items: center;
               justify-content: center;
-              color: rgba(255, 255, 255, 0.5);
+              color: rgba(0, 0, 0, 0.4);
               transition: background 0.15s ease, color 0.15s ease;
             }
             .modal-close:hover {
-              background: rgba(255, 255, 255, 0.1);
-              color: rgba(255, 255, 255, 0.8);
+              background: rgba(0, 0, 0, 0.05);
+              color: rgba(0, 0, 0, 0.7);
             }
             .modal-body {
-              color: rgba(255, 255, 255, 0.7);
+              color: rgba(0, 0, 0, 0.65);
               font-size: 0.875rem;
               line-height: 1.5;
               margin-bottom: 1.25rem;
@@ -456,7 +456,7 @@ export default function AgentationDocs() {
             .modal-btn {
               padding: 0.5rem 1rem;
               font-size: 0.8125rem;
-              font-weight: 500;
+              font-weight: 600;
               border-radius: 8px;
               border: none;
               cursor: pointer;
@@ -464,11 +464,11 @@ export default function AgentationDocs() {
             }
             .modal-btn-secondary {
               background: transparent;
-              color: rgba(255, 255, 255, 0.5);
+              color: rgba(0, 0, 0, 0.5);
             }
             .modal-btn-secondary:hover {
-              background: rgba(255, 255, 255, 0.1);
-              color: rgba(255, 255, 255, 0.8);
+              background: rgba(0, 0, 0, 0.05);
+              color: rgba(0, 0, 0, 0.8);
             }
             .modal-btn-primary {
               background: #3c82f7;
@@ -500,7 +500,7 @@ export default function AgentationDocs() {
                 Cancel
               </button>
               <button className="modal-btn modal-btn-primary" onClick={closeModal}>
-                Got it
+                Got It
               </button>
             </div>
           </div>

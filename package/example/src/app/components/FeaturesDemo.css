@@ -2132,3 +2132,153 @@
     padding: 4px 8px;
   }
 }
+
+/* ============================================================
+   AGENT CHAT DEMO
+   ============================================================ */
+.acd-container {
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.acd-chat {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px 22px 12px;
+  height: 230px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 4px 20px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+.acd-content-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: opacity 0.3s ease;
+}
+
+.acd-content-wrap.acd-fading {
+  opacity: 0;
+}
+
+.acd-message {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  animation: acdMessageIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+@keyframes acdMessageIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.acd-label {
+  font-size: 12px;
+  font-weight: 500;
+  flex-shrink: 0;
+  width: 38px;
+}
+
+.acd-label-user {
+  color: rgba(0,0,0,0.4);
+}
+
+.acd-label-agent {
+  color: #3b82f6;
+}
+
+.acd-content {
+  color: #1a1a1a;
+  flex: 1;
+}
+
+/* Gradient stream reveal */
+.acd-stream {
+  --reveal: 0%;
+  background: linear-gradient(
+    90deg,
+    #1a1a1a 0%,
+    #1a1a1a calc(var(--reveal) * 1.1 - 5%),
+    rgba(26,26,26,0.35) calc(var(--reveal) * 1.1 + 3%),
+    rgba(26,26,26,0) calc(var(--reveal) * 1.1 + 10%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.acd-stream.complete {
+  background: none;
+  -webkit-text-fill-color: #1a1a1a;
+}
+
+/* Shimmer text - Conductor-style thinking */
+.acd-shimmer-text {
+  background: linear-gradient(
+    90deg,
+    rgba(0,0,0,0.3) 0%,
+    rgba(0,0,0,0.3) 40%,
+    rgba(0,0,0,0.6) 50%,
+    rgba(0,0,0,0.3) 60%,
+    rgba(0,0,0,0.3) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: acdShimmer 1.8s linear infinite;
+}
+
+@keyframes acdShimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* Diff summary row */
+.acd-diff {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0 0 50px;
+  animation: acdMessageIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-wrap: wrap;
+}
+
+.acd-diff-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(0,0,0,0.04);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+}
+
+.acd-diff-name {
+  color: rgba(0,0,0,0.7);
+}
+
+.acd-diff-added {
+  color: #22c55e;
+  font-weight: 500;
+}
+
+.acd-diff-removed {
+  color: #ef4444;
+  font-weight: 500;
+}
+
