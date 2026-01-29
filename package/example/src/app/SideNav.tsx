@@ -446,6 +446,7 @@ export function SideNav() {
         { id: 'programmatic-usage', text: 'Programmatic Usage' },
       ],
     },
+    { href: "/webhooks", label: "Webhooks" },
     { section: "Resources" },
     { href: "/changelog", label: "Changelog" },
     { href: "/blog", label: "Blog" },
