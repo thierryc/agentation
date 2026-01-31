@@ -117,6 +117,10 @@ const faqCategories: FAQCategory[] = [
         answer: "Currently, Agentation only annotates elements in the main document. Iframes and shadow DOM content are not accessible due to browser security restrictions."
       },
       {
+        question: "I'm having issues with better-sqlite3 in the MCP server",
+        answer: "The MCP server uses <code>better-sqlite3</code> as a native dependency, which occasionally causes build or runtime issues depending on your Node.js version and platform. If you run into problems, check the <a href=\"https://github.com/WiseLibs/better-sqlite3/blob/master/docs/troubleshooting.md\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"faq-link\">better-sqlite3 troubleshooting guide</a> for solutions."
+      },
+      {
         question: "How do I report bugs or request features?",
         answer: "Open an issue on <a href=\"https://github.com/benjitaylor/agentation/issues\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"faq-link\">GitHub</a>. Pull requests are welcome too."
       },
