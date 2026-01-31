@@ -25,7 +25,7 @@ import {
   getEventsSince,
 } from "./store.js";
 import { eventBus } from "./events.js";
-import type { Annotation, SAFEvent, ActionRequest } from "../types.js";
+import type { Annotation, AFSEvent, ActionRequest } from "../types.js";
 
 // Cloud API configuration
 let cloudApiKey: string | undefined;
@@ -562,7 +562,7 @@ const sseHandler: RouteHandler = async (req, res, params) => {
   }
 
   // Subscribe to new events
-  const unsubscribe = eventBus.subscribeToSession(sessionId, (event: SAFEvent) => {
+  const unsubscribe = eventBus.subscribeToSession(sessionId, (event: AFSEvent) => {
     sendSSEEvent(res, event);
   });
 
@@ -583,7 +583,7 @@ const sseHandler: RouteHandler = async (req, res, params) => {
 /**
  * Send an SSE event to a response stream.
  */
-function sendSSEEvent(res: ServerResponse, event: SAFEvent): void {
+function sendSSEEvent(res: ServerResponse, event: AFSEvent): void {
   res.write(`event: ${event.type}\n`);
   res.write(`id: ${event.sequence}\n`);
   res.write(`data: ${JSON.stringify(event)}\n\n`);
@@ -621,8 +621,38 @@ const globalSseHandler: RouteHandler = async (req, res) => {
   // Send initial comment to establish connection
   res.write(`: connected to domain ${domain}\n\n`);
 
+  // Send all pending annotations for this domain on connect (initial sync)
+  if (isAgent) {
+    let syncCount = 0;
+    const sessions = listSessions();
+    for (const session of sessions) {
+      try {
+        const sessionHost = new URL(session.url).host;
+        if (sessionHost === domain) {
+          const pending = getPendingAnnotations(session.id);
+          for (const annotation of pending) {
+            // Send as annotation.created events so agents see existing annotations
+            // Use sequence 0 for initial sync events (they're historical, not new)
+            sendSSEEvent(res, {
+              type: "annotation.created",
+              sessionId: session.id,
+              timestamp: annotation.createdAt || new Date().toISOString(),
+              sequence: 0,
+              payload: annotation,
+            });
+            syncCount++;
+          }
+        }
+      } catch {
+        // Invalid URL, skip
+      }
+    }
+    // Send a sync.complete event so agents know initial sync is done
+    res.write(`event: sync.complete\ndata: ${JSON.stringify({ domain, count: syncCount, timestamp: new Date().toISOString() })}\n\n`);
+  }
+
   // Subscribe to all events, filter by domain
-  const unsubscribe = eventBus.subscribe((event: SAFEvent) => {
+  const unsubscribe = eventBus.subscribe((event: AFSEvent) => {
     const session = getSession(event.sessionId);
     if (session) {
       try {
@@ -892,6 +922,11 @@ export function startHttpServer(port: number, apiKey?: string): void {
     const url = new URL(req.url || "/", `http://localhost:${port}`);
     const pathname = url.pathname;
     const method = req.method || "GET";
+
+    // Log all requests for debugging
+    if (method !== "OPTIONS" && pathname !== "/health") {
+      console.log(`[HTTP] ${method} ${pathname}`);
+    }
 
     // Handle CORS preflight
     if (method === "OPTIONS") {

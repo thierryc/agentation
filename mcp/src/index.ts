@@ -69,10 +69,10 @@ export type {
   SessionStatus,
   SessionWithAnnotations,
   ThreadMessage,
-  SAFEventType,
+  AFSEventType,
   ActionRequest,
-  SAFEvent,
-  SAFStore,
+  AFSEvent,
+  AFSStore,
   // Multi-tenant types
   Organization,
   User,

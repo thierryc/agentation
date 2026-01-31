@@ -704,6 +704,7 @@ export function PageFeedbackToolbarCSS({
   const justFinishedDragRef = useRef(false);
   const lastElementUpdateRef = useRef(0);
   const recentlyAddedIdRef = useRef<string | null>(null);
+  const prevConnectionStatusRef = useRef<typeof connectionStatus | null>(null);
   const DRAG_THRESHOLD = 8;
   const ELEMENT_UPDATE_THROTTLE = 50; // Faster updates since no React re-renders
 
@@ -1065,6 +1066,88 @@ export function PageFeedbackToolbarCSS({
     const interval = setInterval(checkHealth, 10000);
     return () => clearInterval(interval);
   }, [endpoint, mounted]);
+
+  // Sync local annotations when connection is restored
+  useEffect(() => {
+    if (!endpoint || !mounted) return;
+
+    // Check if we just reconnected (was disconnected, now connected)
+    const wasDisconnected = prevConnectionStatusRef.current === "disconnected";
+    const isNowConnected = connectionStatus === "connected";
+    prevConnectionStatusRef.current = connectionStatus;
+
+    if (wasDisconnected && isNowConnected) {
+      // Sync any local annotations that aren't on the server
+      const syncLocalAnnotations = async () => {
+        try {
+          const localAnnotations = loadAnnotations<Annotation>(pathname);
+          if (localAnnotations.length === 0) return;
+
+          const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+          const pageUrl = `${baseUrl}${pathname}`;
+
+          // Get or create session
+          let sessionId = currentSessionId;
+          let serverAnnotations: Annotation[] = [];
+
+          if (sessionId) {
+            // Try to get existing session
+            try {
+              const session = await getSession(endpoint, sessionId);
+              serverAnnotations = session.annotations;
+            } catch {
+              // Session doesn't exist anymore, create new one
+              sessionId = null;
+            }
+          }
+
+          if (!sessionId) {
+            // Create new session
+            const newSession = await createSession(endpoint, pageUrl);
+            sessionId = newSession.id;
+            setCurrentSessionId(sessionId);
+            saveSessionId(pathname, sessionId);
+            console.log(`[Agentation] Created new session on reconnect: ${sessionId}`);
+          }
+
+          // Find annotations that need syncing
+          const serverIds = new Set(serverAnnotations.map((a) => a.id));
+          const unsyncedLocal = localAnnotations.filter((a) => !serverIds.has(a.id));
+
+          if (unsyncedLocal.length > 0) {
+            console.log(`[Agentation] Syncing ${unsyncedLocal.length} local annotations after reconnect`);
+
+            const results = await Promise.allSettled(
+              unsyncedLocal.map((annotation) =>
+                syncAnnotation(endpoint, sessionId!, {
+                  ...annotation,
+                  sessionId: sessionId!,
+                  url: pageUrl,
+                })
+              )
+            );
+
+            const syncedAnnotations = results.map((result, i) => {
+              if (result.status === "fulfilled") {
+                return result.value;
+              }
+              console.warn("[Agentation] Failed to sync annotation on reconnect:", result.reason);
+              return unsyncedLocal[i];
+            });
+
+            // Update local state with server + synced annotations
+            const allAnnotations = [...serverAnnotations, ...syncedAnnotations];
+            setAnnotations(allAnnotations);
+            saveAnnotationsWithSyncMarker(pathname, allAnnotations, sessionId!);
+          }
+        } catch (err) {
+          console.warn("[Agentation] Failed to sync on reconnect:", err);
+        }
+      };
+
+      syncLocalAnnotations();
+    }
+  }, [connectionStatus, endpoint, mounted, currentSessionId, pathname]);
 
   // Demo annotations
   useEffect(() => {

@@ -3,15 +3,15 @@
  * Coordinates SSE streams, MCP notifications, and future webhooks.
  */
 
-import type { SAFEvent, SAFEventType, Annotation, Session, ThreadMessage, ActionRequest } from "../types.js";
+import type { AFSEvent, AFSEventType, Annotation, Session, ThreadMessage, ActionRequest } from "../types.js";
 
-type EventHandler = (event: SAFEvent) => void;
+type EventHandler = (event: AFSEvent) => void;
 
 // Global sequence counter for event ordering
 let globalSequence = 0;
 
 /**
- * Simple pub/sub event bus for SAF events.
+ * Simple pub/sub event bus for AFS events.
  */
 class EventBus {
   private handlers = new Set<EventHandler>();
@@ -49,11 +49,11 @@ class EventBus {
    * Emit an event to all subscribers.
    */
   emit(
-    type: SAFEventType,
+    type: AFSEventType,
     sessionId: string,
     payload: Annotation | Session | ThreadMessage | ActionRequest
-  ): SAFEvent {
-    const event: SAFEvent = {
+  ): AFSEvent {
+    const event: AFSEvent = {
       type,
       timestamp: new Date().toISOString(),
       sessionId,
@@ -176,11 +176,11 @@ class UserEventBus {
    */
   emitForUser(
     userId: string,
-    type: SAFEventType,
+    type: AFSEventType,
     sessionId: string,
     payload: Annotation | Session | ThreadMessage | ActionRequest
-  ): SAFEvent {
-    const event: SAFEvent = {
+  ): AFSEvent {
+    const event: AFSEvent = {
       type,
       timestamp: new Date().toISOString(),
       sessionId,

@@ -79,7 +79,7 @@ export type ThreadMessage = {
 // Events (for real-time streaming)
 // -----------------------------------------------------------------------------
 
-export type SAFEventType =
+export type AFSEventType =
   | "annotation.created"
   | "annotation.updated"
   | "annotation.deleted"
@@ -96,8 +96,8 @@ export type ActionRequest = {
   timestamp: string;
 };
 
-export type SAFEvent = {
-  type: SAFEventType;
+export type AFSEvent = {
+  type: AFSEventType;
   timestamp: string; // ISO 8601
   sessionId: string;
   sequence: number; // Monotonic for ordering/dedup/replay
@@ -152,7 +152,7 @@ export type UserContext = {
 // Store Interface
 // -----------------------------------------------------------------------------
 
-export interface SAFStore {
+export interface AFSStore {
   // Sessions
   createSession(url: string, projectId?: string): Session;
   getSession(id: string): Session | undefined;
@@ -185,7 +185,7 @@ export interface SAFStore {
   deleteAnnotation(id: string): Annotation | undefined;
 
   // Events (for replay on reconnect)
-  getEventsSince(sessionId: string, sequence: number): SAFEvent[];
+  getEventsSince(sessionId: string, sequence: number): AFSEvent[];
 
   // Lifecycle
   close(): void;

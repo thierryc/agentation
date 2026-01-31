@@ -9,9 +9,9 @@ import { mkdirSync, existsSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 import type {
-  SAFStore,
-  SAFEvent,
-  SAFEventType,
+  AFSStore,
+  AFSEvent,
+  AFSEventType,
   Session,
   SessionStatus,
   SessionWithAnnotations,
@@ -230,7 +230,7 @@ function rowToAnnotation(row: Record<string, unknown>): Annotation {
 // SQLite Store Implementation
 // -----------------------------------------------------------------------------
 
-export function createSQLiteStore(dbPath?: string): SAFStore {
+export function createSQLiteStore(dbPath?: string): AFSStore {
   const db = new Database(dbPath ?? getDbPath());
   db.pragma("journal_mode = WAL");
   initDatabase(db);
@@ -305,7 +305,7 @@ export function createSQLiteStore(dbPath?: string): SAFStore {
   const cutoff = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000).toISOString();
   stmts.pruneOldEvents.run(cutoff);
 
-  function persistEvent(event: SAFEvent): void {
+  function persistEvent(event: AFSEvent): void {
     stmts.insertEvent.run({
       type: event.type,
       timestamp: event.timestamp,
@@ -365,7 +365,7 @@ export function createSQLiteStore(dbPath?: string): SAFStore {
 
       const session = this.getSession(id);
       if (session) {
-        const eventType: SAFEventType = status === "closed" ? "session.closed" : "session.updated";
+        const eventType: AFSEventType = status === "closed" ? "session.closed" : "session.updated";
         const event = eventBus.emit(eventType, id, session);
         persistEvent(event);
       }
@@ -527,10 +527,10 @@ export function createSQLiteStore(dbPath?: string): SAFStore {
     },
 
     // Events
-    getEventsSince(sessionId: string, sequence: number): SAFEvent[] {
+    getEventsSince(sessionId: string, sequence: number): AFSEvent[] {
       const rows = stmts.getEventsSince.all(sessionId, sequence) as Record<string, unknown>[];
       return rows.map((row) => ({
-        type: row.type as SAFEventType,
+        type: row.type as AFSEventType,
         timestamp: row.timestamp as string,
         sessionId: row.session_id as string,
         sequence: row.sequence as number,
@@ -659,7 +659,7 @@ export function createTenantStore(dbPath?: string): TenantStore {
   const cutoff = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000).toISOString();
   tenantStmts.pruneOldEvents.run(cutoff);
 
-  function persistEventForUser(event: SAFEvent, userId: string): void {
+  function persistEventForUser(event: AFSEvent, userId: string): void {
     tenantStmts.insertEvent.run({
       type: event.type,
       timestamp: event.timestamp,

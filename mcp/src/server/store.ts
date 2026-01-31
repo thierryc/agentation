@@ -10,8 +10,8 @@
  */
 
 import type {
-  SAFStore,
-  SAFEvent,
+  AFSStore,
+  AFSEvent,
   Session,
   SessionStatus,
   SessionWithAnnotations,
@@ -25,12 +25,12 @@ import { eventBus } from "./events.js";
 // Store Singleton
 // -----------------------------------------------------------------------------
 
-let _store: SAFStore | null = null;
+let _store: AFSStore | null = null;
 
 /**
  * Get the store instance. Lazily initializes on first access.
  */
-export function getStore(): SAFStore {
+export function getStore(): AFSStore {
   if (!_store) {
     _store = initializeStore();
   }
@@ -40,7 +40,7 @@ export function getStore(): SAFStore {
 /**
  * Initialize the store. Tries SQLite first, falls back to in-memory.
  */
-function initializeStore(): SAFStore {
+function initializeStore(): AFSStore {
   // Check if we should use in-memory only
   if (process.env.AGENTATION_STORE === "memory") {
     console.log("[Store] Using in-memory store (AGENTATION_STORE=memory)");
@@ -64,10 +64,10 @@ function initializeStore(): SAFStore {
 // In-Memory Store (fallback)
 // -----------------------------------------------------------------------------
 
-function createMemoryStore(): SAFStore {
+function createMemoryStore(): AFSStore {
   const sessions = new Map<string, Session>();
   const annotations = new Map<string, Annotation>();
-  const events: SAFEvent[] = [];
+  const events: AFSEvent[] = [];
 
   function generateId(): string {
     return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -249,7 +249,7 @@ function createMemoryStore(): SAFStore {
       return annotation;
     },
 
-    getEventsSince(sessionId: string, sequence: number): SAFEvent[] {
+    getEventsSince(sessionId: string, sequence: number): AFSEvent[] {
       return events.filter(
         (e) => e.sessionId === sessionId && e.sequence > sequence
       );
@@ -340,7 +340,7 @@ export function deleteAnnotation(id: string): Annotation | undefined {
   return getStore().deleteAnnotation(id);
 }
 
-export function getEventsSince(sessionId: string, sequence: number): SAFEvent[] {
+export function getEventsSince(sessionId: string, sequence: number): AFSEvent[] {
   return getStore().getEventsSince(sessionId, sequence);
 }
 
