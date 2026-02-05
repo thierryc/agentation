@@ -1,10 +1,7 @@
-<img src="./logo.svg" alt="" width="50" align="left" />
-
-# Agentation
+<table><tr><td valign="middle"><img src="./logo.svg" alt="" width="45" /></td><td valign="middle"><h1>Agentation</h1></td></tr></table>
 
 [![npm version](https://img.shields.io/npm/v/agentation)](https://www.npmjs.com/package/agentation)
 [![downloads](https://img.shields.io/npm/dm/agentation)](https://www.npmjs.com/package/agentation)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/agentation)](https://bundlephobia.com/package/agentation)
 
 Agentation is an agent-agnostic visual feedback tool. Click elements on your page, add notes, and copy structured output that helps AI coding agents find the exact code you're referring to.
 
