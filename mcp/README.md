@@ -19,34 +19,34 @@ pnpm add agentation-mcp
 Run the interactive setup wizard:
 
 ```bash
-agentation-mcp init
+npx agentation-mcp init
 ```
 
-This will configure Claude Code to use the Agentation MCP server.
+This asks which coding agent you want to configure (`Claude Code` by default, or `Codex`) and then updates the right config file.
 
 ### 2. Start the server
 
 ```bash
-agentation-mcp server
+npx agentation-mcp server
 ```
 
 This starts both:
 - **HTTP server** (port 4747) - receives annotations from the browser toolbar
-- **MCP server** (stdio) - exposes tools for Claude Code
+- **MCP server** (stdio) - exposes tools for Claude Code or Codex
 
 ### 3. Verify your setup
 
 ```bash
-agentation-mcp doctor
+npx agentation-mcp doctor
 ```
 
 ## CLI Commands
 
 ```bash
-agentation-mcp init                    # Interactive setup wizard
-agentation-mcp server [options]        # Start the annotation server
-agentation-mcp doctor                  # Check your setup
-agentation-mcp help                    # Show help
+npx agentation-mcp init                    # Interactive setup wizard
+npx agentation-mcp server [options]        # Start the annotation server
+npx agentation-mcp doctor                  # Check your setup
+npx agentation-mcp help                    # Show help
 ```
 
 ### Server Options
@@ -72,6 +72,45 @@ The MCP server exposes these tools to AI agents:
 | `agentation_dismiss` | Dismiss an annotation with a reason |
 | `agentation_reply` | Add a reply to an annotation thread |
 | `agentation_watch_annotations` | Block until new annotations appear, then return batch |
+
+## Agent Config Directions
+
+### Claude Code (Claude)
+
+Use the setup wizard and choose `Claude Code` (or press Enter for default):
+
+```bash
+npx agentation-mcp init
+```
+
+This updates `~/.claude/claude_code_config.json` with:
+
+```json
+{
+  "mcpServers": {
+    "agentation": {
+      "command": "npx",
+      "args": ["agentation-mcp", "server"]
+    }
+  }
+}
+```
+
+### Codex
+
+Use the setup wizard and choose `Codex`:
+
+```bash
+npx agentation-mcp init
+```
+
+This updates `~/.codex/config.toml` with:
+
+```toml
+[mcp_servers.agentation]
+command = "npx"
+args = ["-y", "agentation-mcp", "server"]
+```
 
 ## HTTP API
 
@@ -156,7 +195,7 @@ await startMcpServer('http://localhost:4747');
 By default, data is persisted to SQLite at `~/.agentation/store.db`. To use in-memory storage:
 
 ```bash
-AGENTATION_STORE=memory agentation-mcp server
+AGENTATION_STORE=memory npx agentation-mcp server
 ```
 
 ## License

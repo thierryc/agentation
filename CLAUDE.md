@@ -29,6 +29,10 @@ Website changes (`package/example/`) only affect agentation.dev.
 - Plugins/extensions → encourage separate repos
 - External binary files → never accept
 
-## Annotations
+## Annotations (Claude Code)
 
 Whenever the user brings up annotations, fetch all the pending annotations before doing anything else. And infer whether I am referencing any annotations.
+
+## Codex
+
+Use the equivalent Codex instructions in `AGENTS.md` (same annotation-first workflow, codex-specific wording).

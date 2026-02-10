@@ -59,7 +59,7 @@ pnpm add agentation-mcp`}
           <p>Run the interactive setup wizard:</p>
           <CodeBlock language="bash" copyable code={`npx agentation-mcp init`} />
           <p style={{ fontSize: "0.8125rem", color: "rgba(0,0,0,0.55)", marginTop: "0.5rem" }}>
-            This configures Claude Code to use the Agentation MCP server.
+            This asks which coding agent to configure. Default is <code>Claude Code</code>, with <code>Codex</code> also supported.
           </p>
 
           <h3>2. Start the server</h3>
@@ -94,7 +94,7 @@ npx agentation-mcp help      # Show help`}
         </section>
 
         <section>
-          <h2 id="claude-code">Claude Code</h2>
+          <h2 id="claude-code">Claude Code (Claude)</h2>
           <p>
             To connect Claude Code to the Agentation MCP server:
           </p>
@@ -113,6 +113,27 @@ npx agentation-mcp help      # Show help`}
             In Claude Code, you can verify the server is connected by asking Claude to list your
             annotation sessions. If the server is running, Claude will be able to use the{" "}
             <code>agentation_list_sessions</code> tool.
+          </p>
+
+          <h2 id="codex" style={{ marginTop: "2rem" }}>Codex</h2>
+          <p>
+            To connect Codex to the Agentation MCP server:
+          </p>
+
+          <h3>1. Start the server</h3>
+          <CodeBlock language="bash" copyable code={`npx agentation-mcp server`} />
+
+          <h3>2. Add MCP server to Codex</h3>
+          <CodeBlock language="bash" copyable code={`codex mcp add npx -y agentation-mcp server agentation`} />
+          <p style={{ fontSize: "0.8125rem", color: "rgba(0,0,0,0.55)", marginTop: "0.5rem" }}>
+            Or run <code>npx agentation-mcp init</code> and select <code>Codex</code>. This updates{" "}
+            <code>~/.codex/config.toml</code>.
+          </p>
+
+          <h3>3. Verify the connection</h3>
+          <p style={{ fontSize: "0.8125rem", color: "rgba(0,0,0,0.55)" }}>
+            Run <code>npx agentation-mcp doctor</code>, choose <code>Codex</code>, then ask the agent to call{" "}
+            <code>agentation_list_sessions</code>.
           </p>
         </section>
 
