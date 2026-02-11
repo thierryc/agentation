@@ -13,6 +13,165 @@ import * as path from "path";
 import { spawn } from "child_process";
 
 const command = process.argv[2];
+const DEFAULT_PORT = 4747;
+
+type CodingAgent = "claude" | "codex";
+
+function parseAgentSelection(input: string): CodingAgent {
+  const normalized = input.trim().toLowerCase();
+  if (normalized === "2" || normalized === "codex") {
+    return "codex";
+  }
+  return "claude";
+}
+
+function getAgentLabel(agent: CodingAgent): string {
+  return agent === "claude" ? "Claude Code" : "Codex";
+}
+
+function parsePortInput(input: string): number {
+  const trimmed = input.trim();
+  const parsed = parseInt(trimmed, 10);
+  if (!trimmed || isNaN(parsed) || parsed < 1 || parsed > 65535) {
+    return DEFAULT_PORT;
+  }
+  return parsed;
+}
+
+function parsePortFromArgArray(args: unknown): number {
+  if (!Array.isArray(args)) {
+    return DEFAULT_PORT;
+  }
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--port" && typeof args[i + 1] === "string") {
+      const parsed = parseInt(args[i + 1], 10);
+      if (!isNaN(parsed) && parsed > 0 && parsed < 65536) {
+        return parsed;
+      }
+    }
+  }
+  return DEFAULT_PORT;
+}
+
+function getHomeDir(): string {
+  return process.env.HOME || process.env.USERPROFILE || "";
+}
+
+function getClaudeConfigPath(homeDir: string): string {
+  return path.join(homeDir, ".claude", "claude_code_config.json");
+}
+
+function getCodexConfigPath(homeDir: string): string {
+  return path.join(homeDir, ".codex", "config.toml");
+}
+
+async function promptForAgent(question: (q: string) => Promise<string>): Promise<CodingAgent> {
+  console.log(`Select coding agent:`);
+  console.log(`  [1] Claude Code (default)`);
+  console.log(`  [2] Codex`);
+  const answer = await question(`Choose agent [1/2]: `);
+  const agent = parseAgentSelection(answer);
+  console.log(`Using ${getAgentLabel(agent)} setup.`);
+  console.log();
+  return agent;
+}
+
+function ensureParentDirectory(filePath: string): void {
+  const parent = path.dirname(filePath);
+  if (!fs.existsSync(parent)) {
+    fs.mkdirSync(parent, { recursive: true });
+  }
+}
+
+function writeClaudeConfig(claudeConfigPath: string, port: number): void {
+  let config: Record<string, unknown> = {};
+  if (fs.existsSync(claudeConfigPath)) {
+    try {
+      config = JSON.parse(fs.readFileSync(claudeConfigPath, "utf-8"));
+    } catch {
+      console.log(`   Warning: Could not parse existing config, creating new one`);
+    }
+  }
+
+  if (!config.mcpServers || typeof config.mcpServers !== "object") {
+    config.mcpServers = {};
+  }
+
+  (config.mcpServers as Record<string, unknown>).agentation = {
+    command: "npx",
+    args: port === DEFAULT_PORT
+      ? ["agentation-mcp", "server"]
+      : ["agentation-mcp", "server", "--port", String(port)],
+  };
+
+  ensureParentDirectory(claudeConfigPath);
+  fs.writeFileSync(claudeConfigPath, JSON.stringify(config, null, 2));
+}
+
+function buildCodexAgentationBlock(port: number): string[] {
+  const args = port === DEFAULT_PORT
+    ? `["-y", "agentation-mcp", "server"]`
+    : `["-y", "agentation-mcp", "server", "--port", "${port}"]`;
+  return [
+    "[mcp_servers.agentation]",
+    `command = "npx"`,
+    `args = ${args}`,
+    "",
+  ];
+}
+
+function writeCodexConfig(codexConfigPath: string, port: number): void {
+  const blockLines = buildCodexAgentationBlock(port);
+
+  if (!fs.existsSync(codexConfigPath)) {
+    ensureParentDirectory(codexConfigPath);
+    fs.writeFileSync(codexConfigPath, blockLines.join("\n"));
+    return;
+  }
+
+  const content = fs.readFileSync(codexConfigPath, "utf-8");
+  const lines = content.split(/\r?\n/);
+  const sectionHeader = "[mcp_servers.agentation]";
+  const start = lines.findIndex((line) => line.trim() === sectionHeader);
+
+  if (start === -1) {
+    const separator = content.endsWith("\n") ? "" : "\n";
+    const updated = `${content}${separator}\n${blockLines.join("\n")}`;
+    fs.writeFileSync(codexConfigPath, updated);
+    return;
+  }
+
+  let end = start + 1;
+  while (end < lines.length) {
+    const trimmed = lines[end].trim();
+    if (/^\[[^\]]+\]$/.test(trimmed)) {
+      break;
+    }
+    end++;
+  }
+
+  const merged = [...lines.slice(0, start), ...blockLines, ...lines.slice(end)].join("\n");
+  const output = merged.endsWith("\n") ? merged : `${merged}\n`;
+  fs.writeFileSync(codexConfigPath, output);
+}
+
+function getCodexAgentationPort(configText: string): number {
+  const sectionMatch = configText.match(
+    /^\[mcp_servers\.agentation\]\n([\s\S]*?)(?=^\[[^\]]+\]|$)/m,
+  );
+  if (!sectionMatch) {
+    return DEFAULT_PORT;
+  }
+
+  const section = sectionMatch[1];
+  const portMatch = section.match(/"--port"\s*,\s*"(\d+)"/);
+  if (!portMatch) {
+    return DEFAULT_PORT;
+  }
+
+  const parsed = parseInt(portMatch[1], 10);
+  return isNaN(parsed) ? DEFAULT_PORT : parsed;
+}
 
 // ============================================================================
 // INIT COMMAND - Interactive setup wizard
@@ -29,24 +188,36 @@ async function runInit() {
 
   console.log(`
 ╔═══════════════════════════════════════════════════════════════╗
-║                 Agentation MCP Setup Wizard                    ║
+║                 Agentation MCP Setup Wizard                   ║
 ╚═══════════════════════════════════════════════════════════════╝
 `);
 
-  // Step 1: Check Claude Code config
-  const homeDir = process.env.HOME || process.env.USERPROFILE || "";
-  const claudeConfigPath = path.join(homeDir, ".claude.json");
-  const hasClaudeConfig = fs.existsSync(claudeConfigPath);
+  const agent = await promptForAgent(question);
+  const agentLabel = getAgentLabel(agent);
+  const homeDir = getHomeDir();
 
-  if (hasClaudeConfig) {
-    console.log(`✓ Found Claude Code config at ${claudeConfigPath}`);
+  // Step 1: Check agent config
+  if (agent === "claude") {
+    const claudeConfigPath = getClaudeConfigPath(homeDir);
+    const hasClaudeConfig = fs.existsSync(claudeConfigPath);
+    if (hasClaudeConfig) {
+      console.log(`✓ Found ${agentLabel} config at ${claudeConfigPath}`);
+    } else {
+      console.log(`○ No ${agentLabel} config found at ${claudeConfigPath}`);
+    }
   } else {
-    console.log(`○ No Claude Code config found at ${claudeConfigPath}`);
+    const codexConfigPath = getCodexConfigPath(homeDir);
+    const hasCodexConfig = fs.existsSync(codexConfigPath);
+    if (hasCodexConfig) {
+      console.log(`✓ Found ${agentLabel} config at ${codexConfigPath}`);
+    } else {
+      console.log(`○ No ${agentLabel} config found at ${codexConfigPath}`);
+    }
   }
   console.log();
 
   // Step 2: Ask about MCP server
-  console.log(`The Agentation MCP server allows Claude Code to receive`);
+  console.log(`The Agentation MCP server allows ${agentLabel} to receive`);
   console.log(`real-time annotations and respond to feedback.`);
   console.log();
 
@@ -54,34 +225,45 @@ async function runInit() {
   const wantsMcp = setupMcp.toLowerCase() !== "n";
 
   if (wantsMcp) {
-    let port = 4747;
+    let port = DEFAULT_PORT;
     const portAnswer = await question(`HTTP server port [4747]: `);
-    if (portAnswer && !isNaN(parseInt(portAnswer, 10))) {
-      port = parseInt(portAnswer, 10);
+    port = parsePortInput(portAnswer);
+
+    if (agent === "claude") {
+      const claudeConfigPath = getClaudeConfigPath(homeDir);
+      writeClaudeConfig(claudeConfigPath, port);
+      console.log();
+      console.log(`✓ Updated ${claudeConfigPath}`);
+    } else {
+      const codexConfigPath = getCodexConfigPath(homeDir);
+      writeCodexConfig(codexConfigPath, port);
+      console.log();
+      console.log(`✓ Updated ${codexConfigPath}`);
     }
+    if (agent === "claude") {
+      // Register MCP server using Claude Code CLI for immediate availability.
+      const mcpArgs = port === DEFAULT_PORT
+        ? ["mcp", "add", "agentation", "--", "npx", "agentation-mcp", "server"]
+        : ["mcp", "add", "agentation", "--", "npx", "agentation-mcp", "server", "--port", String(port)];
 
-    // Register MCP server using claude mcp add
-    const mcpArgs = port === 4747
-      ? ["mcp", "add", "agentation", "--", "npx", "agentation-mcp", "server"]
-      : ["mcp", "add", "agentation", "--", "npx", "agentation-mcp", "server", "--port", String(port)];
+      console.log();
+      console.log(`Running: claude ${mcpArgs.join(" ")}`);
 
-    console.log();
-    console.log(`Running: claude ${mcpArgs.join(" ")}`);
-
-    try {
-      const result = spawn("claude", mcpArgs, { stdio: "inherit" });
-      await new Promise<void>((resolve, reject) => {
-        result.on("close", (code) => {
-          if (code === 0) resolve();
-          else reject(new Error(`claude mcp add exited with code ${code}`));
+      try {
+        const result = spawn("claude", mcpArgs, { stdio: "inherit" });
+        await new Promise<void>((resolve, reject) => {
+          result.on("close", (code) => {
+            if (code === 0) resolve();
+            else reject(new Error(`claude mcp add exited with code ${code}`));
+          });
+          result.on("error", reject);
         });
-        result.on("error", reject);
-      });
-      console.log(`✓ Registered agentation MCP server with Claude Code`);
-    } catch (err) {
-      console.log(`✗ Could not register MCP server automatically: ${err}`);
-      console.log(`  You can register manually by running:`);
-      console.log(`  claude mcp add agentation -- npx agentation-mcp server`);
+        console.log(`✓ Registered agentation MCP server with Claude Code`);
+      } catch (err) {
+        console.log(`✗ Could not register MCP server automatically: ${err}`);
+        console.log(`  You can register manually by running:`);
+        console.log(`  claude mcp add agentation -- npx agentation-mcp server`);
+      }
     }
     console.log();
 
@@ -92,7 +274,7 @@ async function runInit() {
       console.log(`Starting server on port ${port}...`);
 
       // Start server in background
-      const server = spawn("agentation-mcp", ["server", "--port", String(port)], {
+      const server = spawn("npx", ["-y", "agentation-mcp", "server", "--port", String(port)], {
         stdio: "inherit",
         detached: false,
       });
@@ -106,7 +288,7 @@ async function runInit() {
         if (response.ok) {
           console.log();
           console.log(`✓ Server is running on http://localhost:${port}`);
-          console.log(`✓ MCP tools available to Claude Code`);
+          console.log(`✓ MCP tools available to ${agentLabel}`);
           console.log();
           console.log(`Press Ctrl+C to stop the server.`);
 
@@ -133,11 +315,21 @@ async function runInit() {
 // ============================================================================
 
 async function runDoctor() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  const question = (q: string): Promise<string> =>
+    new Promise((resolve) => rl.question(q, resolve));
+
   console.log(`
 ╔═══════════════════════════════════════════════════════════════╗
-║                    Agentation MCP Doctor                       ║
+║                    Agentation MCP Doctor                      ║
 ╚═══════════════════════════════════════════════════════════════╝
 `);
+
+  const agent = await promptForAgent(question);
+  const agentLabel = getAgentLabel(agent);
 
   let allPassed = true;
   const results: Array<{ name: string; status: "pass" | "fail" | "warn"; message: string }> = [];
@@ -152,55 +344,63 @@ async function runDoctor() {
     allPassed = false;
   }
 
-  // Check 2: Claude Code config
-  const homeDir = process.env.HOME || process.env.USERPROFILE || "";
-  const claudeConfigPath = path.join(homeDir, ".claude.json");
-  if (fs.existsSync(claudeConfigPath)) {
-    try {
-      const config = JSON.parse(fs.readFileSync(claudeConfigPath, "utf-8"));
-      // Check top-level and per-project mcpServers for agentation
-      let found = false;
-      if (config.mcpServers?.agentation) {
-        found = true;
-      }
-      // Also check per-project entries
-      if (!found && config.projects) {
-        for (const proj of Object.values(config.projects) as Record<string, unknown>[]) {
-          if ((proj as { mcpServers?: { agentation?: unknown } }).mcpServers?.agentation) {
-            found = true;
-            break;
-          }
+  const homeDir = getHomeDir();
+  let port = DEFAULT_PORT;
+
+  // Check 2: Agent config
+  if (agent === "claude") {
+    const claudeConfigPath = getClaudeConfigPath(homeDir);
+    if (fs.existsSync(claudeConfigPath)) {
+      try {
+        const config = JSON.parse(fs.readFileSync(claudeConfigPath, "utf-8"));
+        const agentationConfig = config.mcpServers?.agentation;
+        if (agentationConfig) {
+          results.push({ name: "Claude Code config", status: "pass", message: "MCP server configured" });
+          port = parsePortFromArgArray((agentationConfig as Record<string, unknown>).args);
+        } else {
+          results.push({ name: "Claude Code config", status: "warn", message: "Config exists but no agentation MCP entry" });
         }
+      } catch {
+        results.push({ name: "Claude Code config", status: "fail", message: "Could not parse config file" });
+        allPassed = false;
       }
-      if (found) {
-        results.push({ name: "Claude Code config", status: "pass", message: "MCP server configured" });
-      } else {
-        results.push({ name: "Claude Code config", status: "warn", message: "Config exists but no agentation MCP entry. Run: claude mcp add agentation -- npx agentation-mcp server" });
-      }
-    } catch {
-      results.push({ name: "Claude Code config", status: "fail", message: "Could not parse config file" });
-      allPassed = false;
+    } else {
+      results.push({ name: "Claude Code config", status: "warn", message: "No config found at ~/.claude/claude_code_config.json" });
     }
   } else {
-    results.push({ name: "Claude Code config", status: "warn", message: "No config found at ~/.claude.json. Run: claude mcp add agentation -- npx agentation-mcp server" });
-  }
-
-  // Check 3: Stale config at old (wrong) path
-  const oldConfigPath = path.join(homeDir, ".claude", "claude_code_config.json");
-  if (fs.existsSync(oldConfigPath)) {
-    results.push({ name: "Stale config", status: "warn", message: `${oldConfigPath} exists but Claude Code doesn't read this file. Safe to delete.` });
-  }
-
-  // Check 4: Server connectivity (try default port)
-  try {
-    const response = await fetch("http://localhost:4747/health", { signal: AbortSignal.timeout(2000) });
-    if (response.ok) {
-      results.push({ name: "Server (port 4747)", status: "pass", message: "Running and healthy" });
+    const codexConfigPath = getCodexConfigPath(homeDir);
+    if (fs.existsSync(codexConfigPath)) {
+      try {
+        const configText = fs.readFileSync(codexConfigPath, "utf-8");
+        if (configText.includes("[mcp_servers.agentation]")) {
+          results.push({ name: "Codex config", status: "pass", message: "MCP server configured" });
+          port = getCodexAgentationPort(configText);
+        } else {
+          results.push({ name: "Codex config", status: "warn", message: "Config exists but no agentation MCP entry" });
+        }
+      } catch {
+        results.push({ name: "Codex config", status: "fail", message: "Could not read config file" });
+        allPassed = false;
+      }
     } else {
-      results.push({ name: "Server (port 4747)", status: "warn", message: `Responded with ${response.status}` });
+      results.push({ name: "Codex config", status: "warn", message: "No config found at ~/.codex/config.toml" });
+    }
+  }
+
+  // Check 3: Server connectivity
+  try {
+    const response = await fetch(`http://localhost:${port}/health`, { signal: AbortSignal.timeout(2000) });
+    if (response.ok) {
+      results.push({ name: `Server (port ${port})`, status: "pass", message: "Running and healthy" });
+    } else {
+      results.push({ name: `Server (port ${port})`, status: "warn", message: `Responded with ${response.status}` });
     }
   } catch {
-    results.push({ name: "Server (port 4747)", status: "warn", message: "Not running (start with: agentation-mcp server)" });
+    results.push({
+      name: `Server (port ${port})`,
+      status: "warn",
+      message: `Not running (start with: npx agentation-mcp server)`,
+    });
   }
 
   // Print results
@@ -212,11 +412,13 @@ async function runDoctor() {
 
   console.log();
   if (allPassed) {
-    console.log(`All checks passed!`);
+    console.log(`All checks passed for ${agentLabel}!`);
   } else {
     console.log(`Some checks failed. Run 'agentation-mcp init' to fix.`);
+    rl.close();
     process.exit(1);
   }
+  rl.close();
 }
 
 // ============================================================================
@@ -297,16 +499,17 @@ Server Options:
   --api-key <key>    API key for cloud storage (or set AGENTATION_API_KEY env var)
 
 Commands:
-  init      Guided setup that configures Claude Code to use the MCP server.
-            Registers the server via 'claude mcp add'.
+  init      Guided setup that configures Claude Code or Codex to use the MCP server.
+            Claude: updates ~/.claude/claude_code_config.json
+            Codex: updates ~/.codex/config.toml
 
   server    Starts both an HTTP server and MCP server for collecting annotations.
             The HTTP server receives annotations from the React component.
-            The MCP server exposes tools for Claude Code to read/act on annotations.
+            The MCP server exposes tools for Claude Code or Codex to read/act on annotations.
 
   doctor    Runs diagnostic checks on your setup:
             - Node.js version
-            - Claude Code configuration
+            - Selected coding agent configuration
             - Server connectivity
 
 Examples:

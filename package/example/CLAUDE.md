@@ -1,4 +1,4 @@
-# Agentation Website
+# Agentation Website (Claude Code)
 
 Demo site and documentation at agentation.dev.
 
@@ -26,3 +26,7 @@ Deployed automatically via Vercel on push to main.
 ## Note
 
 If something breaks in the demos, it might indicate a bug in the package itself. Use this as a testing ground for the library.
+
+## Codex
+
+Use the Codex counterpart instructions in `package/example/AGENTS.md`.

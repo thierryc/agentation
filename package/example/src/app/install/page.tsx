@@ -256,7 +256,7 @@ function App() {
         </section>
 
         <section>
-          <h2>Claude Code</h2>
+          <h2>Claude Code (Claude)</h2>
           <p>
             If you use Claude Code, you can set up Agentation automatically with the <code>/agentation</code> skill. Install it:
           </p>
@@ -273,6 +273,21 @@ function App() {
             }}
           >
             Detects your framework, installs the package, wires it into your layout, and configures the MCP server for auto-start.
+          </p>
+
+          <h2 style={{ marginTop: "2rem" }}>Codex</h2>
+          <p>
+            For Codex, add Agentation MCP directly:
+          </p>
+          <CodeBlock code="codex mcp add npx -y agentation-mcp server agentation" language="bash" copyable />
+          <p
+            style={{
+              fontSize: "0.8125rem",
+              color: "rgba(0,0,0,0.45)",
+              marginTop: "0.375rem",
+            }}
+          >
+            Or run <code>npx agentation-mcp init</code>, select <code>Codex</code>, and it will update <code>~/.codex/config.toml</code>.
           </p>
         </section>
 
@@ -303,7 +318,10 @@ function App() {
 
           <h3>2. Configure your agent</h3>
           <p>
-            Add Agentation as an MCP server in your agent&apos;s config. Example for Claude Code:
+            Add Agentation as an MCP server in your agent&apos;s config.
+          </p>
+          <p style={{ marginBottom: "0.5rem" }}>
+            <strong>Claude Code (Claude):</strong>
           </p>
           <CodeBlock
             code="claude mcp add agentation -- npx agentation-mcp server"
@@ -329,6 +347,17 @@ function App() {
   }
 }`}
             language="json"
+          />
+
+          <p style={{ marginTop: "1rem", marginBottom: "0.5rem" }}>
+            <strong>Codex:</strong>
+          </p>
+          <CodeBlock
+            code={`# Edit ~/.codex/config.toml
+[mcp_servers.agentation]
+command = "npx"
+args = ["-y", "agentation-mcp", "server"]`}
+            language="toml"
           />
 
           <h3>3. Connect the component</h3>

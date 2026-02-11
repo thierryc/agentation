@@ -1,4 +1,4 @@
-# Agentation Package
+# Agentation Package (Claude Code)
 
 This is the publishable npm package. Changes here affect everyone who installs `agentation`.
 
@@ -64,3 +64,7 @@ When instructed to publish a new npm version:
 7. Commit and push the changelog update
 
 Always analyze what changed since the last version to write accurate changelog entries.
+
+## Codex
+
+Use the Codex counterpart instructions in `package/AGENTS.md`.

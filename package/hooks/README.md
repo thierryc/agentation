@@ -2,6 +2,9 @@
 
 This hook automatically injects pending UI annotations into Claude's context on every user message.
 
+> Claude-specific: these hook instructions are for Claude Code.  
+> Codex: use MCP setup (`codex mcp add npx -y agentation-mcp server agentation`) and add workflow instructions in `AGENTS.md`.
+
 ## Quick Setup
 
 ### Option 1: One-liner (recommended)
